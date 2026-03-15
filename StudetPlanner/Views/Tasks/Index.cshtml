@@ -1,0 +1,36 @@
+@model IEnumerable<StudetPlanner.Models.TaskItem>
+
+<h1 class="mb-3">Задачі</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Створити задачу</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Дедлайн</th>
+            <th>Пріоритет</th>
+            <th>Статус</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+        <tr>
+            <td>@item.Title</td>
+            <td>@item.Deadline?.ToString("yyyy-MM-dd")</td>
+            <td>@item.Priority</td>
+            <td>@item.Status</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+

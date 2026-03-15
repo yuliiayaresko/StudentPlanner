@@ -1,0 +1,24 @@
+@model StudetPlanner.Models.TaskItem
+
+<h1 class="mb-3">Деталі задачі</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Назва</dt>
+    <dd class="col-sm-9">@Model.Title</dd>
+
+    <dt class="col-sm-3">Опис</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">Дедлайн</dt>
+    <dd class="col-sm-9">@Model.Deadline?.ToString("yyyy-MM-dd")</dd>
+
+    <dt class="col-sm-3">Пріоритет</dt>
+    <dd class="col-sm-9">@Model.Priority</dd>
+
+    <dt class="col-sm-3">Статус</dt>
+    <dd class="col-sm-9">@Model.Status</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+<a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+

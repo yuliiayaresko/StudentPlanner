@@ -1,0 +1,25 @@
+@model StudetPlanner.Models.Subject
+
+@{
+    ViewData["Title"] = "Деталі предмета";
+}
+
+<h1 class="mb-3">Деталі предмета</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Id</dt>
+    <dd class="col-sm-9">@Model.Id</dd>
+
+    <dt class="col-sm-3">Назва</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Опис</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">UserId</dt>
+    <dd class="col-sm-9">@Model.UserId</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+<a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+

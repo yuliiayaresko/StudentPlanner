@@ -1,0 +1,24 @@
+@model StudetPlanner.Models.Subject
+
+@{
+    ViewData["Title"] = "Видалити предмет";
+}
+
+<h1 class="mb-3">Видалити предмет</h1>
+
+<h3>Ви впевнені, що хочете видалити цей предмет?</h3>
+
+<dl class="row">
+    <dt class="col-sm-3">Назва</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Опис</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Видалити</button>
+    <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+</form>
+

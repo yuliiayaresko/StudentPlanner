@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Home";
+    Layout = "_LandingLayout";
+}
+
+<section class="landing-hero">
+    <div class="landing-hero__content">
+        <h1 class="landing-hero__title">Smart planner for students</h1>
+        <p class="landing-hero__subtitle">
+            Manage your tasks, deadlines, and achievements in one place. Stay organized, 
+            track your progress, and make the most of your study time with gamification that keeps you motivated.
+        </p>
+        <div class="landing-hero__buttons">
+            <a class="landing-hero__btn landing-hero__btn--primary" asp-controller="User" asp-action="Create">Get Started</a>
+            <a class="landing-hero__btn landing-hero__btn--secondary" href="#">Login</a>
+        </div>
+    </div>
+
+    <div class="landing-mockup">
+        <div class="landing-mockup__header">
+            <span class="landing-mockup__month">March 2025</span>
+            <div class="landing-mockup__nav">
+                <button type="button" class="landing-mockup__nav-btn" aria-label="Previous">‹</button>
+                <button type="button" class="landing-mockup__nav-btn" aria-label="Next">›</button>
+            </div>
+        </div>
+        <div class="landing-mockup__weekdays">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="landing-mockup__grid">
+            <span class="landing-mockup__day">26</span><span class="landing-mockup__day">27</span><span class="landing-mockup__day">28</span>
+            <span class="landing-mockup__day">1</span><span class="landing-mockup__day">2</span><span class="landing-mockup__day landing-mockup__day--current">3</span><span class="landing-mockup__day">4</span>
+            <span class="landing-mockup__day">5</span><span class="landing-mockup__day">6</span><span class="landing-mockup__day">7</span><span class="landing-mockup__day landing-mockup__day--today">8</span>
+            <span class="landing-mockup__day">9</span><span class="landing-mockup__day">10</span><span class="landing-mockup__day">11</span>
+            <span class="landing-mockup__day">12</span><span class="landing-mockup__day">13</span><span class="landing-mockup__day">14</span><span class="landing-mockup__day">15</span>
+            <span class="landing-mockup__day">16</span><span class="landing-mockup__day">17</span><span class="landing-mockup__day">18</span>
+        </div>
+        <div class="landing-mockup__tasks">
+            <div class="landing-mockup__task">
+                <span class="landing-mockup__task-dot"></span>
+                <span>Math homework – Chapter 5</span>
+            </div>
+            <div class="landing-mockup__task landing-mockup__task--orange">
+                <span class="landing-mockup__task-dot"></span>
+                <span>Essay draft due</span>
+            </div>
+            <div class="landing-mockup__task landing-mockup__task--green">
+                <span class="landing-mockup__task-dot"></span>
+                <span>Study group meeting</span>
+            </div>
+        </div>
+    </div>
+</section>

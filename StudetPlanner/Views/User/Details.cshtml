@@ -1,0 +1,31 @@
+@model StudetPlanner.Models.User
+
+@{
+    ViewData["Title"] = "Деталі користувача";
+}
+
+<h1 class="mb-3">Деталі користувача</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Id</dt>
+    <dd class="col-sm-9">@Model.Id</dd>
+
+    <dt class="col-sm-3">Логін</dt>
+    <dd class="col-sm-9">@Model.Username</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+
+    <dt class="col-sm-3">Рівень</dt>
+    <dd class="col-sm-9">@Model.Level</dd>
+
+    <dt class="col-sm-3">Досвід</dt>
+    <dd class="col-sm-9">@Model.ExperiencePoints</dd>
+
+    <dt class="col-sm-3">Створено</dt>
+    <dd class="col-sm-9">@Model.CreatedAt</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+<a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+

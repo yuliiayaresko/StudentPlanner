@@ -1,0 +1,40 @@
+@model IEnumerable<StudetPlanner.Models.Subject>
+
+@{
+    ViewData["Title"] = "Предмети";
+}
+
+<h1 class="mb-3">Предмети</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Створити предмет</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Назва</th>
+            <th>Опис</th>
+            <th>UserId</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Name</td>
+            <td>@item.Description</td>
+            <td>@item.UserId</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+

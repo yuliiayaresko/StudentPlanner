@@ -1,0 +1,24 @@
+@model StudetPlanner.Models.User
+
+@{
+    ViewData["Title"] = "Видалити користувача";
+}
+
+<h1 class="mb-3">Видалити користувача</h1>
+
+<h3>Ви впевнені, що хочете видалити цього користувача?</h3>
+
+<dl class="row">
+    <dt class="col-sm-3">Логін</dt>
+    <dd class="col-sm-9">@Model.Username</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Видалити</button>
+    <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+</form>
+
