@@ -1,17 +1,17 @@
-﻿using StudetPlanner.Models;
+using StudetPlanner.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace StudetPlanner
 {
-    public class PlannerDbContext : DbContext
+    public class PlannerDbContext : IdentityDbContext <User, IdentityRole<int>, int>
     {
         public PlannerDbContext(DbContextOptions<PlannerDbContext> options) : base(options)
         {
         }
-        public DbSet<User> Users { get; set; }
-
         public DbSet<Subject> Subjects { get; set; }
 
         public DbSet<TaskItem> Tasks { get; set; }
@@ -24,6 +24,8 @@ namespace StudetPlanner
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<TaskItem>()
                 .HasOne(t => t.Subject)
                 .WithMany(s => s.Tasks)

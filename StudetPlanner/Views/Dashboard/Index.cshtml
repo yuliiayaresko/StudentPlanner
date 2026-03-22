@@ -1,0 +1,130 @@
+﻿@model StudetPlanner.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+
+    string GetSubjectColor(int? id)
+    {
+        var colors = new[] { "#ff4fd8", "#3b82f6", "#8b5cf6", "#10b981", "#f59e0b" };
+        return colors[(id ?? 0) % colors.Length];
+    }
+}
+
+<div class="dashboard-full">
+    <div class="d-flex vh-100">
+
+        <div class="col-12 col-lg-3 bg-dark border-end p-4 d-flex flex-column" style="background:#1a1a22 !important;">
+
+            <button class="btn w-100 mb-4 d-flex align-items-center gap-2 justify-content-center"
+                    style="background:#ff4fd8; color:white; border:none; height:52px;">
+                📬 Inbox
+            </button>
+
+            <div class="position-relative mb-4">
+                <input id="quick-task" class="form-control rounded-pill py-3" placeholder="Add a new inbox task..." />
+                <button onclick="quickAdd()"
+                        class="btn position-absolute end-0 top-50 translate-middle-y me-2 rounded-circle"
+                        style="background:#ff4fd8; color:white; width:42px; height:42px;">
+                    ＋
+                </button>
+            </div>
+
+            <h4 class="mb-2">My Subjects</h4>
+            <p class="text-muted small mb-3">Your university courses</p>
+
+            <div class="flex-grow-1">
+                @foreach (var s in Model.Subjects)
+                {
+                    <a asp-controller="Subject" asp-action="Details" asp-route-id="@s.Id"
+                       class="d-flex align-items-center gap-3 p-3 text-decoration-none hover-bg rounded">
+                        <div class="rounded-circle" style="width:16px;height:16px;background:@GetSubjectColor(s.Id)"></div>
+                        <span class="text-white">@s.Name</span>
+                    </a>
+                }
+                @if (!Model.Subjects.Any())
+                {
+                    <p class="text-muted small mt-3">Додай перший предмет ↑</p>
+                }
+            </div>
+
+            <div class="mt-auto pt-5">
+                <div class="bg-dark p-3 rounded-4 d-flex gap-3">
+                    <div class="bg-white p-2 rounded-3" style="width:52px;height:52px"></div>
+                    <div class="small">
+                        <div>Stay organized on the go!</div>
+                        <a href="#" class="text-pink">Download app →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРАВА ЧАСТИНА -->
+        <div class="col-12 col-lg-9 d-flex flex-column">
+
+            <!-- Верхня панель -->
+            <div class="border-bottom border-secondary p-3 d-flex align-items-center justify-content-between bg-dark">
+                <div class="d-flex align-items-center gap-4">
+                    <h3 class="mb-0 text-pink">March 2026</h3>
+                    <div class="btn-group">
+                        <button class="btn btn-pink active">Day</button>
+                        <button class="btn btn-outline-light">Multi-Day</button>
+                        <button class="btn btn-outline-light">Week</button>
+                        <button class="btn btn-outline-light">Month</button>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-4 text-center small">
+                    <div><small class="text-muted">Sun</small><br>15</div>
+                    <div><small class="text-muted">Mon</small><br>16</div>
+                    <div><small class="text-muted">Tue</small><br>17</div>
+                    <div><small class="text-muted">Wed</small><br>18</div>
+                    <div><small class="text-muted">Thu</small><br>19</div>
+                    <div class="bg-pink text-white rounded-3 px-3 py-1">
+                        <small>Fri</small><br><strong>20</strong>
+                    </div>
+                    <div><small class="text-muted">Sat</small><br>21</div>
+                </div>
+            </div>
+
+            <!-- ТАЙМЛАЙН -->
+            <div class="flex-grow-1 p-4 overflow-auto">
+                <div class="timeline">
+
+                    @if (Model.Tasks.Any())
+                    {
+                        @foreach (var task in Model.Tasks)
+                        {
+                            string color = GetSubjectColor(task.SubjectId);
+                            <div class="timeline-item">
+                                <div class="timeline-time">@(task.Deadline?.ToString("HH:mm") ?? "—")</div>
+                                <div class="task-card" style="border-left-color: @color">
+                                    <div class="task-card__title">@task.Title</div>
+                                    @if (task.Subject != null)
+                                    {
+                                        <div class="task-card__meta">@task.Subject.Name</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <h1 class="display-1 mb-3">📌</h1>
+                            <p class="fs-4">Поки немає завдань</p>
+                            <p>Натисни кнопку ＋ праворуч</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <a asp-controller="Tasks" asp-action="Create" class="fab-create-task">＋</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function quickAdd() {
+        const val = document.getElementById('quick-task').value.trim();
+        if (val) window.location.href = `/Tasks/Create?Title=${encodeURIComponent(val)}`;
+    }
+</script>

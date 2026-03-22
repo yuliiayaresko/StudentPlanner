@@ -1,19 +1,10 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace StudetPlanner.Models
 {
-    public class User
+    public class User: IdentityUser<int>
     {
-        public int Id { get; set; }
-
-        public string? Username { get; set; }
-
-        public string? Email { get; set; }
-
-        public string? PasswordHash { get; set; }
-
-        [NotMapped]
-        public string? Password { get; set; }
+        public string? NameUser { get; set; }
 
         public int Level { get; set; } = 1;
 

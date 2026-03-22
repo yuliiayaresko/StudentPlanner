@@ -1,31 +1,189 @@
-html {
-  font-size: 14px;
+:root {
+  --bg: #0f0f14;
+  --card: #1a1a22;
+  --accent: #ff4fd8;
+  --border: #2a2a35;
+  --text-main: #ffffff;
+  --text-secondary: #a1a1aa;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
+html,
+body {
   min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+a {
+  color: var(--accent);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.app-shell {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.app-content {
+  padding-bottom: 5rem;
+}
+
+.app-navbar {
+  background: rgba(15, 15, 20, 0.86);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar-brand {
+  color: var(--text-main) !important;
+  font-weight: 700;
+}
+
+.nav-link {
+  color: var(--text-secondary) !important;
+  transition: color 0.25s ease;
+}
+
+.nav-link:hover {
+  color: var(--text-main) !important;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 79, 216, 0.25) !important;
+  border-color: var(--accent) !important;
+}
+
+.form-control,
+.form-select,
+.form-control:disabled {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--text-main);
+}
+
+.planner-header {
+  margin-bottom: 1rem;
+}
+
+.planner-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.planner-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.timeline-time {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding-top: 0.95rem;
+}
+
+.task-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(255, 79, 216, 0.16);
+  border-color: rgba(255, 79, 216, 0.45);
+}
+
+.task-card__title {
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.task-card__meta {
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.task-card__actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 0.65rem;
+  font-size: 0.85rem;
+}
+
+.task-card__actions a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.task-card__actions a:hover {
+  text-decoration: underline;
+}
+
+.fab-create-task {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  line-height: 1;
+  text-decoration: none;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 0 20px rgba(255, 79, 216, 0.42);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  z-index: 1000;
+}
+
+.fab-create-task:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 26px rgba(255, 79, 216, 0.58);
+  color: #fff;
+}
+
+/* Dashboard Ч повна ширина */
+.dashboard-full .app-shell {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.dashboard-full {
+    padding: 0 !important;
 }

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using StudetPlanner.Models;
 
 namespace StudetPlanner.Controllers
 {
+    [Authorize]
     public class TasksController : Controller
     {
         private readonly PlannerDbContext _context;

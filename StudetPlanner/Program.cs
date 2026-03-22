@@ -1,18 +1,22 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StudetPlanner;
+using StudetPlanner.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Додаємо підтримку MVC з представленнями
 builder.Services.AddControllersWithViews();
-
-builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<PlannerDbContext>(options =>
 options.UseSqlServer(
 builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+
+builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<PlannerDbContext>();
+
+
 
 builder.Services.AddCors(options =>
 {
@@ -34,14 +38,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Маршрути для MVC-сторінок
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Маршрути для API-контролерів
-app.MapControllers();
+app.MapRazorPages();
 
 app.Run();

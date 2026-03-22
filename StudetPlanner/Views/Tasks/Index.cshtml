@@ -1,36 +1,46 @@
 @model IEnumerable<StudetPlanner.Models.TaskItem>
 
-<h1 class="mb-3">Задачі</h1>
-
-<p>
-    <a class="btn btn-primary" asp-action="Create">Створити задачу</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Назва</th>
-            <th>Дедлайн</th>
-            <th>Пріоритет</th>
-            <th>Статус</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model)
-{
-        <tr>
-            <td>@item.Title</td>
-            <td>@item.Deadline?.ToString("yyyy-MM-dd")</td>
-            <td>@item.Priority</td>
-            <td>@item.Status</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-            </td>
-        </tr>
+@{
+    ViewData["Title"] = "Задачі";
 }
-    </tbody>
-</table>
+
+<section class="planner-header">
+    <h1 class="planner-title">Task Timeline</h1>
+    <p class="planner-subtitle">Stay focused on what matters today.</p>
+</section>
+
+<section class="timeline">
+    @{
+        var hasTasks = false;
+    }
+    @foreach (var item in Model)
+    {
+        hasTasks = true;
+        <article class="timeline-item">
+            <div class="timeline-time">
+                @(item.Deadline?.ToString("HH:mm") ?? "--:--")
+            </div>
+            <div class="task-card">
+                <div class="task-card__title">@item.Title</div>
+                <div class="task-card__meta">
+                    @(item.Deadline?.ToString("dd MMM yyyy") ?? "No deadline") • Priority: @item.Priority • Status: @item.Status
+                </div>
+                <div class="task-card__actions">
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </div>
+            </div>
+        </article>
+    }
+    @if (!hasTasks)
+    {
+        <div class="task-card">
+            <div class="task-card__title">No tasks yet</div>
+            <div class="task-card__meta">Tap the + button to create your first task.</div>
+        </div>
+    }
+</section>
+
+<a class="fab-create-task" asp-action="Create" aria-label="Create task">+</a>
 

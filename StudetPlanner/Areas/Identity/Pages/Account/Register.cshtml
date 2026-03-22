@@ -1,0 +1,66 @@
+﻿@page
+@model RegisterModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Register</title>
+
+    <!-- ШРИФТ -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ЛІВА ЧАСТИНА -->
+        <div class="left">
+            <img src="/images/bg.jpg" alt="bg" />
+        </div>
+
+        <!-- ПРАВА ЧАСТИНА -->
+        <div class="right">
+            <div class="form-box">
+
+                <h1>Join</h1>
+                <h2>Student Planner</h2>
+
+                <form id="registerForm" method="post">
+
+                    <div asp-validation-summary="ModelOnly" class="error"></div>
+
+                    <input asp-for="Input.Email" placeholder="Your email address" />
+                    <span asp-validation-for="Input.Email" class="error"></span>
+
+                    <input asp-for="Input.Password" type="password" placeholder="Password" />
+                    <span asp-validation-for="Input.Password" class="error"></span>
+
+                    <input asp-for="Input.ConfirmPassword" type="password" placeholder="Confirm password" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="error"></span>
+
+                    <button type="submit">Create account</button>
+
+                </form>
+
+                <p class="register">
+                    Already have an account?
+                    <a asp-page="./Login">Log in</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+</body>
+</html>

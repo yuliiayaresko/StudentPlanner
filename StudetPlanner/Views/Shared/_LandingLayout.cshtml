@@ -13,12 +13,11 @@
 <body class="landing-page">
     <nav class="landing-nav">
         <a class="landing-nav__logo" asp-controller="Home" asp-action="Index">
-            <span class="landing-nav__logo-icon">📚</span>
             Student Planner
         </a>
         <div class="landing-nav__actions">
-            <a class="landing-nav__btn landing-nav__btn--text" href="#">Login</a>
-            <a class="landing-nav__btn landing-nav__btn--primary" asp-controller="User" asp-action="Create">Register</a>
+            <a class="landing-nav__btn landing-nav__btn--text" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            <a class="landing-nav__btn landing-nav__btn--primary" asp-area="Identity" asp-page="/Account/Register">Register</a>
         </div>
     </nav>
 
