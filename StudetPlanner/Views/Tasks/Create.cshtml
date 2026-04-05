@@ -1,59 +1,63 @@
 @model StudetPlanner.Models.TaskItem
+@{
+    ViewData["Title"] = "Нова задача";
+}
 
-<h1 class="mb-3">Створити задачу</h1>
+<div class="mb-4">
+    <h2 class="mb-1">Нова задача</h2>
+    <p class="text-muted small mb-0">Заповни поля нижче</p>
+</div>
 
 <form asp-action="Create" method="post">
-    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <input asp-for="UserId" type="hidden" />
+
     <div class="mb-3">
-        <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
+        <label asp-for="Title" class="form-label">Назва</label>
+        <input asp-for="Title" class="form-control" placeholder="Наприклад: Лабораторна №3" />
+        <span asp-validation-for="Title" class="text-danger small"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
+        <label asp-for="Description" class="form-label">Опис</label>
+        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Додаткові деталі..."></textarea>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Deadline" class="form-label"></label>
-        <input asp-for="Deadline" class="form-control" type="date" />
-        <span asp-validation-for="Deadline" class="text-danger"></span>
+        <label asp-for="Deadline" class="form-label">Дедлайн (дата і час)</label>
+        <input asp-for="Deadline" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Deadline" class="text-danger small"></span>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Priority" class="form-label">Пріоритет</label>
-        <select asp-for="Priority" class="form-select">
-            <option value="0">Неважливо</option>
-            <option value="1">Важливо</option>
+    <div class="row g-3 mb-3">
+        <div class="col-6">
+            <label asp-for="Priority" class="form-label">Пріоритет</label>
+            <select asp-for="Priority" class="form-select">
+                <option value="0">Неважливо</option>
+                <option value="1">Важливо</option>
+            </select>
+        </div>
+        <div class="col-6">
+            <label asp-for="Status" class="form-label">Статус</label>
+            <select asp-for="Status" class="form-select">
+                <option value="0">Не розпочато</option>
+                <option value="1">В процесі</option>
+                <option value="2">Зроблено</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="SubjectId" class="form-label">Предмет</label>
+        <select asp-for="SubjectId" class="form-select"
+                asp-items="@(ViewBag.Subjects as SelectList)">
+            <option value="">— без предмету —</option>
         </select>
-        <span asp-validation-for="Priority" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Status" class="form-label">Статус</label>
-        <select asp-for="Status" class="form-select">
-            <option value="0">Не розпочато</option>
-            <option value="1">В процесі</option>
-            <option value="2">Зроблено</option>
-        </select>
-        <span asp-validation-for="Status" class="text-danger"></span>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary px-4">Зберегти</button>
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary">Скасувати</a>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="SubjectId" class="form-label">Предмет (необов'язково)</label>
-        <input asp-for="SubjectId" class="form-control" type="number" />
-        <span asp-validation-for="SubjectId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="UserId" class="form-label"></label>
-        <input asp-for="UserId" class="form-control" type="number" />
-        <span asp-validation-for="UserId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Зберегти</button>
-    <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
 </form>
-

@@ -1,7 +1,6 @@
 @using Microsoft.AspNetCore.Identity
 @using StudetPlanner.Models
 @inject SignInManager<User> SignInManager
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -53,12 +52,14 @@
         </div>
     </nav>
 
-    <main class="app-shell app-content">
+    <main class="@(ViewData["FullWidth"] != null ? "app-content-full" : "app-shell app-content")">
         @RenderBody()
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
+
+    @* Модалки рендеряться тут — прямо в body, поза main *@
+    @RenderSection("Modals", required: false)
 </body>
 </html>
-

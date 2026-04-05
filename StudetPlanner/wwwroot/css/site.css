@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #0f0f14;
   --card: #1a1a22;
   --accent: #ff4fd8;
@@ -10,6 +10,11 @@
 html,
 body {
   min-height: 100%;
+}
+.app-content-full {
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 body {
@@ -177,7 +182,7 @@ a {
   color: #fff;
 }
 
-/* Dashboard � ����� ������ */
+/* Dashboard — повна ширина */
 .dashboard-full .app-shell {
     max-width: 100% !important;
     margin: 0 !important;
@@ -187,3 +192,201 @@ a {
 .dashboard-full {
     padding: 0 !important;
 }
+/* ═══════════════════════════════════════════════
+   MODALS — глобальні стилі (додати в кінець site.css)
+   ═══════════════════════════════════════════════ */
+
+.modal-overlay {
+    position: fixed !important;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+    .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .modal-overlay .modal {
+        background: #1e1e2a;
+        border-radius: 18px;
+        width: 400px;
+        max-width: 95vw;
+        overflow: hidden;
+        transform: scale(0.93) translateY(14px);
+        transition: transform 0.22s cubic-bezier(.34, 1.56, .64, 1);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-overlay.open .modal {
+        transform: scale(1) translateY(0);
+    }
+
+.modal-top {
+    padding: 20px 20px 22px;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-title-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.15rem;
+    font-weight: 600;
+    width: 100%;
+    outline: none;
+    padding-right: 36px;
+}
+
+    .modal-title-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+.modal-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 3px;
+}
+
+.modal-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.modal-field {
+    background: #2a2a3a;
+    border-radius: 10px;
+    padding: 10px 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-field-icon {
+    font-size: 13px;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+    flex: 1;
+    font-family: inherit;
+}
+
+    .modal-field select option {
+        background: #1e1e2a;
+        color: white;
+    }
+
+.modal-field textarea {
+    resize: none;
+}
+
+    .modal-field textarea::placeholder,
+    .modal-field input::placeholder {
+        color: #555;
+    }
+
+.color-picker-row {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.cpick {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.12s;
+}
+
+    .cpick:hover {
+        transform: scale(1.18);
+    }
+
+    .cpick.sel {
+        border-color: white;
+    }
+
+.modal-footer {
+    padding: 0 16px 16px;
+}
+
+.modal-submit {
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+    .modal-submit:hover {
+        opacity: 0.88;
+    }
+
+/* Toast */
+.toast {
+    position: fixed !important;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #10b981;
+    color: white;
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0;
+    z-index: 10000;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+        background: #ef4444;
+    }

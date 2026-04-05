@@ -1,130 +1,115 @@
 ﻿@model StudetPlanner.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
+    ViewData["FullWidth"] = true;
 
     string GetSubjectColor(int? id)
     {
         var colors = new[] { "#ff4fd8", "#3b82f6", "#8b5cf6", "#10b981", "#f59e0b" };
         return colors[(id ?? 0) % colors.Length];
     }
+
+    var today = DateTime.Today;
+    var weekStart = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
 }
 
-<div class="dashboard-full">
-    <div class="d-flex vh-100">
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+}
 
-        <div class="col-12 col-lg-3 bg-dark border-end p-4 d-flex flex-column" style="background:#1a1a22 !important;">
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
 
-            <button class="btn w-100 mb-4 d-flex align-items-center gap-2 justify-content-center"
-                    style="background:#ff4fd8; color:white; border:none; height:52px;">
-                📬 Inbox
-            </button>
+<div class="dashboard-wrapper">
 
-            <div class="position-relative mb-4">
-                <input id="quick-task" class="form-control rounded-pill py-3" placeholder="Add a new inbox task..." />
-                <button onclick="quickAdd()"
-                        class="btn position-absolute end-0 top-50 translate-middle-y me-2 rounded-circle"
-                        style="background:#ff4fd8; color:white; width:42px; height:42px;">
-                    ＋
-                </button>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <button class="btn-inbox">📬 Inbox</button>
+        <div class="quick-add-wrapper">
+            <input id="quick-task" type="text" placeholder="Add a new inbox task..." />
+            <button onclick="quickAdd()">＋</button>
+        </div>
+        <h6 class="text-white mb-1" style="font-size:0.82rem;">MY SUBJECTS</h6>
+        <p style="color:#555;font-size:0.73rem;margin-bottom:0.6rem;">Your university courses</p>
+        <div id="subject-list-sidebar">
+            @foreach (var s in Model.Subjects)
+            {
+                <a asp-controller="Subject" asp-action="Details" asp-route-id="@s.Id" class="subject-link">
+                    <div class="subject-dot" style="background:@GetSubjectColor(s.Id)"></div>
+                    <span>@s.Name</span>
+                </a>
+            }
+            @if (!Model.Subjects.Any())
+            {
+                <p style="color:#444;font-size:0.8rem;margin-top:0.4rem;">Ще немає предметів</p>
+            }
+        </div>
+        <button class="add-subject-btn" onclick="openSubjectModal()">＋ Додати предмет</button>
+        <div class="sidebar-footer">
+            <div class="promo-card">
+                <div class="promo-icon"></div>
+                <div style="font-size:0.77rem;color:#777;">Stay organized!</div>
             </div>
+        </div>
+    </aside>
 
-            <h4 class="mb-2">My Subjects</h4>
-            <p class="text-muted small mb-3">Your university courses</p>
-
-            <div class="flex-grow-1">
-                @foreach (var s in Model.Subjects)
-                {
-                    <a asp-controller="Subject" asp-action="Details" asp-route-id="@s.Id"
-                       class="d-flex align-items-center gap-3 p-3 text-decoration-none hover-bg rounded">
-                        <div class="rounded-circle" style="width:16px;height:16px;background:@GetSubjectColor(s.Id)"></div>
-                        <span class="text-white">@s.Name</span>
-                    </a>
-                }
-                @if (!Model.Subjects.Any())
-                {
-                    <p class="text-muted small mt-3">Додай перший предмет ↑</p>
-                }
-            </div>
-
-            <div class="mt-auto pt-5">
-                <div class="bg-dark p-3 rounded-4 d-flex gap-3">
-                    <div class="bg-white p-2 rounded-3" style="width:52px;height:52px"></div>
-                    <div class="small">
-                        <div>Stay organized on the go!</div>
-                        <a href="#" class="text-pink">Download app →</a>
-                    </div>
+    <!-- MAIN -->
+    <div class="main-content">
+        <div class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <h4 id="period-label">@today.ToString("MMMM yyyy")</h4>
+                <div class="d-flex gap-1">
+                    <button class="view-btn active" onclick="switchView('day',this)">Day</button>
+                    <button class="view-btn" onclick="switchView('multiday',this)">Multi-Day</button>
+                    <button class="view-btn" onclick="switchView('week',this)">Week</button>
+                    <button class="view-btn" onclick="switchView('month',this)">Month</button>
                 </div>
+            </div>
+            <div class="day-strip" id="day-strip">
+                @for (int i = 0; i < 7; i++)
+                {
+                    var d = weekStart.AddDays(i);
+                    <div class="day-item @(d.Date == today ? "active" : "")"
+                         data-date="@d.ToString("yyyy-MM-dd")"
+                         onclick="selectDay('@d.ToString("yyyy-MM-dd")', this)">
+                        <small>@d.ToString("ddd")</small>@d.Day
+                    </div>
+                }
             </div>
         </div>
 
-        <!-- ПРАВА ЧАСТИНА -->
-        <div class="col-12 col-lg-9 d-flex flex-column">
-
-            <!-- Верхня панель -->
-            <div class="border-bottom border-secondary p-3 d-flex align-items-center justify-content-between bg-dark">
-                <div class="d-flex align-items-center gap-4">
-                    <h3 class="mb-0 text-pink">March 2026</h3>
-                    <div class="btn-group">
-                        <button class="btn btn-pink active">Day</button>
-                        <button class="btn btn-outline-light">Multi-Day</button>
-                        <button class="btn btn-outline-light">Week</button>
-                        <button class="btn btn-outline-light">Month</button>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-4 text-center small">
-                    <div><small class="text-muted">Sun</small><br>15</div>
-                    <div><small class="text-muted">Mon</small><br>16</div>
-                    <div><small class="text-muted">Tue</small><br>17</div>
-                    <div><small class="text-muted">Wed</small><br>18</div>
-                    <div><small class="text-muted">Thu</small><br>19</div>
-                    <div class="bg-pink text-white rounded-3 px-3 py-1">
-                        <small>Fri</small><br><strong>20</strong>
-                    </div>
-                    <div><small class="text-muted">Sat</small><br>21</div>
-                </div>
-            </div>
-
-            <!-- ТАЙМЛАЙН -->
-            <div class="flex-grow-1 p-4 overflow-auto">
-                <div class="timeline">
-
-                    @if (Model.Tasks.Any())
-                    {
-                        @foreach (var task in Model.Tasks)
-                        {
-                            string color = GetSubjectColor(task.SubjectId);
-                            <div class="timeline-item">
-                                <div class="timeline-time">@(task.Deadline?.ToString("HH:mm") ?? "—")</div>
-                                <div class="task-card" style="border-left-color: @color">
-                                    <div class="task-card__title">@task.Title</div>
-                                    @if (task.Subject != null)
-                                    {
-                                        <div class="task-card__meta">@task.Subject.Name</div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-center py-5 text-muted">
-                            <h1 class="display-1 mb-3">📌</h1>
-                            <p class="fs-4">Поки немає завдань</p>
-                            <p>Натисни кнопку ＋ праворуч</p>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <a asp-controller="Tasks" asp-action="Create" class="fab-create-task">＋</a>
+        <div class="content-area">
+            <!-- Всі 4 view рендеряться через JS — не через Razor -->
+            <div id="view-day"></div>
+            <div id="view-multiday" style="display:none;"></div>
+            <div id="view-week" style="display:none;"></div>
+            <div id="view-month" style="display:none;"></div>
         </div>
     </div>
 </div>
 
+<input type="hidden" name="__RequestVerificationToken" value="@tokens.RequestToken" />
+
 <script>
-    function quickAdd() {
-        const val = document.getElementById('quick-task').value.trim();
-        if (val) window.location.href = `/Tasks/Create?Title=${encodeURIComponent(val)}`;
-    }
+    window.DASHBOARD_DATA = {
+        tasks: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+          Model.Tasks.Select(t => new
+          {
+              id = t.Id,
+              title = t.Title,
+              description = t.Description,
+              subjectName = t.Subject != null ? t.Subject.Name : null,
+              subjectId = t.SubjectId,
+              deadline = t.Deadline.HasValue ? t.Deadline.Value.ToString("yyyy-MM-ddTHH:mm") : (string?)null,
+              createdAt = t.CreatedAt.ToString("yyyy-MM-ddTHH:mm"),
+              status = t.Status,
+              priority = t.Priority
+          })
+        )),
+        subjects: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.Subjects.Select(s => new { id = s.Id, name = s.Name })
+        )),
+        antiForgery: "@tokens.RequestToken"
+    };
 </script>
+<script src="~/js/dashboard.js" asp-append-version="true"></script>

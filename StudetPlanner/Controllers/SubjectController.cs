@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using StudetPlanner.Models;
+using System.Security.Claims;
 
 namespace StudetPlanner.Controllers
 {
@@ -15,11 +16,18 @@ namespace StudetPlanner.Controllers
             _context = context;
         }
 
+        private int GetUserId()
+        {
+            var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(claim, out int id) ? id : 0;
+        }
+
         // GET: Subject
         public async Task<IActionResult> Index()
         {
+            int userId = GetUserId();
             var subjects = await _context.Subjects
-                .Include(s => s.User)
+                .Where(s => s.UserId == userId)
                 .ToListAsync();
             return View(subjects);
         }
@@ -27,20 +35,12 @@ namespace StudetPlanner.Controllers
         // GET: Subject/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            int userId = GetUserId();
             var subject = await _context.Subjects
-                .Include(s => s.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (subject == null)
-            {
-                return NotFound();
-            }
-
+                .Include(s => s.Tasks)
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
+            if (subject == null) return NotFound();
             return View(subject);
         }
 
@@ -50,33 +50,58 @@ namespace StudetPlanner.Controllers
             return View();
         }
 
-        // POST: Subject/Create
+        // POST: Subject/Create (звичайна форма)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Subject subject)
         {
+            subject.UserId = GetUserId();
+            ModelState.Remove("User");
+            ModelState.Remove("Tasks");
+
             if (ModelState.IsValid)
             {
                 _context.Add(subject);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Dashboard");
             }
             return View(subject);
+        }
+
+        // POST: Subject/CreateAjax — для модального вікна
+        [HttpPost]
+        public async Task<IActionResult> CreateAjax([FromBody] SubjectCreateDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return BadRequest(new { error = "Назва не може бути порожньою" });
+
+            int userId = GetUserId();
+            var subject = new Subject
+            {
+                Name = dto.Name.Trim(),
+                Description = dto.Description,
+                UserId = userId
+            };
+
+            _context.Add(subject);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                id = subject.Id,
+                name = subject.Name,
+                description = subject.Description
+            });
         }
 
         // GET: Subject/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var subject = await _context.Subjects.FindAsync(id);
-            if (subject == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+            int userId = GetUserId();
+            var subject = await _context.Subjects
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+            if (subject == null) return NotFound();
             return View(subject);
         }
 
@@ -85,10 +110,10 @@ namespace StudetPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Subject subject)
         {
-            if (id != subject.Id)
-            {
-                return NotFound();
-            }
+            if (id != subject.Id) return NotFound();
+            subject.UserId = GetUserId();
+            ModelState.Remove("User");
+            ModelState.Remove("Tasks");
 
             if (ModelState.IsValid)
             {
@@ -99,14 +124,8 @@ namespace StudetPlanner.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SubjectExists(subject.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!SubjectExists(subject.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -116,18 +135,11 @@ namespace StudetPlanner.Controllers
         // GET: Subject/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            int userId = GetUserId();
             var subject = await _context.Subjects
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (subject == null)
-            {
-                return NotFound();
-            }
-
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
+            if (subject == null) return NotFound();
             return View(subject);
         }
 
@@ -136,13 +148,14 @@ namespace StudetPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var subject = await _context.Subjects.FindAsync(id);
+            int userId = GetUserId();
+            var subject = await _context.Subjects
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
             if (subject != null)
             {
                 _context.Subjects.Remove(subject);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -151,5 +164,11 @@ namespace StudetPlanner.Controllers
             return _context.Subjects.Any(e => e.Id == id);
         }
     }
-}
 
+    // DTO для AJAX
+    public class SubjectCreateDto
+    {
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+    }
+}

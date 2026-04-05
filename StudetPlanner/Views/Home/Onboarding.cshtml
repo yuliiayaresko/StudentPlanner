@@ -30,6 +30,12 @@
                 Get Started
             </a>
 
+            <form method="post" asp-controller="Home" asp-action="OnboardingComplete">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="start-btn">Get Started</button>
+            </form>
+
+
         </div>
 
     </div>

@@ -15,6 +15,7 @@ namespace StudetPlanner.Models
         public ICollection<Subject>? Subjects { get; set; }
 
         public ICollection<TaskItem>? Tasks { get; set; }
+        public bool IsOnboardingCompleted { get; set; } = false;
 
         public ICollection<UserAchievement>? UserAchievements { get; set; }
 

@@ -1,13 +1,20 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using StudetPlanner;
 using StudetPlanner.Models;
+using StudetPlanner.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Додаємо підтримку MVC з представленнями
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddAntiforgery();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+
 
 builder.Services.AddDbContext<PlannerDbContext>(options =>
 options.UseSqlServer(
