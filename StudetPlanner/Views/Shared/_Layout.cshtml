@@ -9,46 +9,218 @@
     <title>@ViewData["Title"] - Student Planner</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .app-navbar {
+            background: rgba(15, 15, 20, 0.92) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 79, 216, 0.12);
+            height: 56px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            padding: 0;
+        }
+
+            .app-navbar .container-fluid {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 1.5rem;
+            }
+
+        /* LOGO */
+        .sp-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white !important;
+            text-decoration: none;
+            letter-spacing: -0.01em;
+        }
+
+        .sp-brand-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff4fd8 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+            .sp-brand-icon svg {
+                width: 15px;
+                height: 15px;
+                fill: white;
+            }
+
+        .sp-brand:hover {
+            color: white !important;
+        }
+
+        /* USER PILL */
+        .sp-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sp-user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px 4px 4px;
+            border-radius: 40px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: background 0.15s;
+            text-decoration: none;
+        }
+
+            .sp-user-pill:hover {
+                background: rgba(255,255,255,0.09);
+            }
+
+        .sp-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4fd8, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .sp-username {
+            font-size: 0.8rem;
+            color: #ddd;
+            font-weight: 500;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* LOGOUT BUTTON */
+        .sp-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #666;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 0;
+        }
+
+            .sp-logout:hover {
+                background: rgba(239,68,68,0.12);
+                border-color: rgba(239,68,68,0.35);
+                color: #ef4444;
+            }
+
+            .sp-logout svg {
+                width: 14px;
+                height: 14px;
+                fill: currentColor;
+            }
+
+        /* AUTH BUTTONS */
+        .sp-auth {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sp-login {
+            font-size: 0.82rem;
+            color: #999;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            transition: color 0.15s;
+        }
+
+            .sp-login:hover {
+                color: white;
+            }
+
+        .sp-register {
+            font-size: 0.82rem;
+            color: white;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: #ff4fd8;
+            font-weight: 600;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+        }
+
+            .sp-register:hover {
+                opacity: 0.85;
+                color: white;
+            }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg app-navbar mb-4">
-        <div class="container-fluid app-shell">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Student Planner</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">Головна</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Tasks" asp-action="Index">Задачі</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Subject" asp-action="Index">Предмети</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        <li class="nav-item">
-                            <span class="nav-link text-light">Hello, @User.Identity?.Name</span>
-                        </li>
-                        <li class="nav-item">
-                            <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-                                <button type="submit" class="btn btn-link nav-link text-light border-0">Logout</button>
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Register">Register</a>
-                        </li>
-                    }
-                </ul>
-            </div>
+    <nav class="navbar app-navbar">
+        <div class="container-fluid">
+
+            <!-- LOGO -->
+            <a class="sp-brand" asp-controller="Dashboard" asp-action="Index">
+                <div class="sp-brand-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3h8v8H3zm0 10h8v8H3zM13 3h8v8h-8zm0 10h8v8h-8z" />
+                    </svg>
+                </div>
+                Student Planner
+            </a>
+
+            <!-- RIGHT SIDE -->
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var userName = User.Identity?.Name ?? "";
+                var initials = userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
+
+                <div class="sp-user">
+                    <div class="sp-user-pill">
+                        <div class="sp-avatar">@initials</div>
+                        <span class="sp-username">@userName</span>
+                    </div>
+                    <form asp-area="Identity" asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                          method="post" style="margin:0;display:flex;">
+                        <button type="submit" class="sp-logout" title="Вийти">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="sp-auth">
+                    <a class="sp-login" asp-area="Identity" asp-page="/Account/Login">Увійти</a>
+                    <a class="sp-register" asp-area="Identity" asp-page="/Account/Register">Реєстрація</a>
+                </div>
+            }
+
         </div>
     </nav>
 
@@ -58,8 +230,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
-
-    @* Модалки рендеряться тут — прямо в body, поза main *@
     @RenderSection("Modals", required: false)
 </body>
 </html>

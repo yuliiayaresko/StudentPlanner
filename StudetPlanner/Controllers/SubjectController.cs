@@ -50,7 +50,7 @@ namespace StudetPlanner.Controllers
             return View();
         }
 
-        // POST: Subject/Create (звичайна форма)
+        // POST: Subject/Create (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Subject subject)
@@ -68,12 +68,12 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // POST: Subject/CreateAjax — для модального вікна
+        // POST: Subject/CreateAjax пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         [HttpPost]
         public async Task<IActionResult> CreateAjax([FromBody] SubjectCreateDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
-                return BadRequest(new { error = "Назва не може бути порожньою" });
+                return BadRequest(new { error = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" });
 
             int userId = GetUserId();
             var subject = new Subject
@@ -165,7 +165,7 @@ namespace StudetPlanner.Controllers
         }
     }
 
-    // DTO для AJAX
+    // DTO пїЅпїЅпїЅ AJAX
     public class SubjectCreateDto
     {
         public string Name { get; set; } = "";

@@ -1,8 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +11,12 @@ namespace StudetPlanner.Areas.Identity.Pages.Account
     public class ConfirmEmailModel : PageModel
     {
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public ConfirmEmailModel(UserManager<User> userManager)
+        public ConfirmEmailModel(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         [TempData]
@@ -38,15 +36,15 @@ namespace StudetPlanner.Areas.Identity.Pages.Account
 
             if (result.Succeeded)
             {
-                // Перший раз після реєстрації — на Onboarding
-                // Наступні рази (якщо вже проходив) — на Dashboard
+                // Логінимо користувача одразу після підтвердження
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
                 if (user.IsOnboardingCompleted)
                     return RedirectToAction("Index", "Dashboard");
                 else
                     return RedirectToAction("Onboarding", "Home");
             }
 
-            // Якщо помилка — показуємо сторінку з повідомленням
             StatusMessage = "Помилка підтвердження email. Спробуй ще раз.";
             return Page();
         }

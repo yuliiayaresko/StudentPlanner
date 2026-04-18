@@ -14,35 +14,34 @@ namespace StudetPlanner.Controllers
         {
             _userManager = userManager;
         }
+        [Authorize]
+        public IActionResult Onboarding()
+        {
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OnboardingComplete()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user != null)
+            {
+                user.IsOnboardingCompleted = true;
+                await _userManager.UpdateAsync(user);
+            }
+
+            return RedirectToAction("Index", "Dashboard");
+        }
 
         public IActionResult Index()
         {
             return View();
         }
 
-        [Authorize]
-        public async Task<IActionResult> Onboarding()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Index");
-
-            if (user.IsOnboardingCompleted)
-                return RedirectToAction("Index", "Dashboard");
-
-            return View();
-        }
-
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> OnboardingComplete()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user != null)
-            {
-                user.IsOnboardingCompleted = true;
-                await _userManager.UpdateAsync(user);
-            }
-            return RedirectToAction("Index", "Dashboard");
-        }
+        
+        
     }
 }
