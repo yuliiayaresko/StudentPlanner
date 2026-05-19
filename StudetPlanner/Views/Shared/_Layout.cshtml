@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Identity
 @using StudetPlanner.Models
 @inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -139,6 +140,51 @@
                 fill: currentColor;
             }
 
+        /* XP BAR */
+        .sp-xp-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        .sp-xp-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: #888;
+            gap: 8px;
+        }
+
+        .sp-xp-level {
+            color: #ff4fd8;
+            font-weight: 600;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+        .sp-xp-pts {
+            color: #666;
+            font-size: 0.68rem;
+            white-space: nowrap;
+        }
+
+        .sp-xp-track {
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .sp-xp-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #ff4fd8, #8b5cf6);
+            transition: width 0.4s ease;
+        }
+
         /* AUTH BUTTONS */
         .sp-auth {
             display: flex;
@@ -196,8 +242,21 @@
             {
                 var userName = User.Identity?.Name ?? "";
                 var initials = userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
+                var currentUser = await UserManager.GetUserAsync(User);
+                var level = currentUser?.Level ?? 1;
+                var xp = currentUser?.ExperiencePoints ?? 0;
+                var xpInLevel = xp % 100;
 
                 <div class="sp-user">
+                    <div class="sp-xp-wrap" title="@xp XP загалом" onclick="if(window.openAchievementsPanel)openAchievementsPanel()">
+                        <div class="sp-xp-label">
+                            <span class="sp-xp-level">Рівень @level</span>
+                            <span class="sp-xp-pts">@xpInLevel/100 XP</span>
+                        </div>
+                        <div class="sp-xp-track">
+                            <div class="sp-xp-fill" style="width:@xpInLevel%"></div>
+                        </div>
+                    </div>
                     <div class="sp-user-pill">
                         <div class="sp-avatar">@initials</div>
                         <span class="sp-username">@userName</span>

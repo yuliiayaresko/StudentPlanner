@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using StudetPlanner;
 using StudetPlanner.Models;
+using StudetPlanner.Data;
 using StudetPlanner.Services;
 
 
@@ -53,5 +54,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
+}
 
 app.Run();

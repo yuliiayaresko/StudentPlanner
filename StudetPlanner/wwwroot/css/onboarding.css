@@ -1,6 +1,11 @@
-﻿body {
+* {
+    box-sizing: border-box;
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
     background: #0f0f14;
     color: white;
 }
@@ -15,42 +20,65 @@
 .content {
     text-align: center;
     max-width: 400px;
+    padding: 0 24px;
 }
 
 .logo {
-    font-size: 40px;
-    color: #ff8fb1;
+    font-size: 2.5rem;
+    color: #ff4fd8;
     margin-bottom: 20px;
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(255, 79, 216, 0.12);
+    border: 1px solid rgba(255, 79, 216, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 h1 {
     color: #9ca3af;
     font-weight: 400;
+    font-size: 1rem;
+    margin-bottom: 4px;
 }
 
 h2 {
-    font-weight: 600;
-    background: linear-gradient(90deg, #ff8fb1, #e0568a);
+    font-weight: 700;
+    font-size: 1.6rem;
+    margin-bottom: 16px;
+    background: linear-gradient(90deg, #ff4fd8, #f472e8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 p {
     color: #a1a1aa;
-    margin: 20px 0;
+    margin: 0 0 28px;
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
-/* BUTTON */
 .start-btn {
     display: inline-block;
-    padding: 14px 30px;
-    border-radius: 30px;
-    background: linear-gradient(135deg, #e0568a, #ff8fb1);
+    padding: 14px 36px;
+    border-radius: 10px;
+    background: #ff4fd8;
     color: white;
     text-decoration: none;
-    transition: 0.2s;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    font-family: inherit;
+    width: 100%;
 }
 
-    .start-btn:hover {
-        box-shadow: 0 6px 20px rgba(224, 86, 138, 0.3);
-    }
+.start-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    color: white;
+}

@@ -1,4 +1,4 @@
-﻿@model StudetPlanner.Models.DashboardViewModel
+@model StudetPlanner.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
     ViewData["FullWidth"] = true;
@@ -11,6 +11,14 @@
 
     var today = DateTime.Today;
     var weekStart = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+
+    var hour = DateTime.Now.Hour;
+    string greeting = hour < 12 ? "Доброго ранку" : hour < 18 ? "Добрий день" : "Добрий вечір";
+    var userName = User.Identity?.Name ?? "";
+    var shortName = userName.Contains('@') ? userName.Split('@')[0] : userName;
+    var todayTaskCount = Model.Tasks.Count(t =>
+        (t.Deadline.HasValue ? t.Deadline.Value.ToString("yyyy-MM-dd") : t.CreatedAt.ToString("yyyy-MM-dd"))
+        == today.ToString("yyyy-MM-dd"));
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
@@ -24,17 +32,36 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <button class="btn-inbox">📬 Inbox</button>
+
+        <!-- TODAY'S FOCUS (replaces Inbox button) -->
+        <div class="today-focus-block">
+            <div class="today-focus-greeting">@greeting, @shortName</div>
+            <div class="today-focus-date">@today.ToString("dddd, d MMMM", new System.Globalization.CultureInfo("uk-UA"))</div>
+            <div class="today-focus-stat">
+                @if (todayTaskCount == 0)
+                {
+                    <span>Сьогодні задач немає</span>
+                }
+                else
+                {
+                    <span>@todayTaskCount задач@(todayTaskCount == 1 ? "а" : todayTaskCount < 5 ? "и" : "") сьогодні</span>
+                }
+            </div>
+        </div>
+
         <div class="quick-add-wrapper">
-            <input id="quick-task" type="text" placeholder="Add a new inbox task..." />
+            <input id="quick-task" type="text" placeholder="Швидко додати задачу..." />
             <button onclick="quickAdd()">＋</button>
         </div>
-        <h6 class="text-white mb-1" style="font-size:0.82rem;">MY SUBJECTS</h6>
-        <p style="color:#555;font-size:0.73rem;margin-bottom:0.6rem;">Your university courses</p>
+
+        <h6 class="text-white mb-1" style="font-size:0.82rem;">МОЇ ПРЕДМЕТИ</h6>
+        <p style="color:#555;font-size:0.73rem;margin-bottom:0.6rem;">Університетські курси</p>
+
         <div id="subject-list-sidebar">
             @foreach (var s in Model.Subjects)
             {
-                <a asp-controller="Subject" asp-action="Details" asp-route-id="@s.Id" class="subject-link">
+                <a class="subject-link" href="javascript:void(0)" data-subject-id="@s.Id"
+                   onclick="openSubjectPanel(@s.Id)">
                     <div class="subject-dot" style="background:@GetSubjectColor(s.Id)"></div>
                     <span>@s.Name</span>
                 </a>
@@ -44,13 +71,8 @@
                 <p style="color:#444;font-size:0.8rem;margin-top:0.4rem;">Ще немає предметів</p>
             }
         </div>
+
         <button class="add-subject-btn" onclick="openSubjectModal()">＋ Додати предмет</button>
-        <div class="sidebar-footer">
-            <div class="promo-card">
-                <div class="promo-icon"></div>
-                <div style="font-size:0.77rem;color:#777;">Stay organized!</div>
-            </div>
-        </div>
     </aside>
 
     <!-- MAIN -->
@@ -59,10 +81,10 @@
             <div class="d-flex align-items-center gap-3">
                 <h4 id="period-label">@today.ToString("MMMM yyyy")</h4>
                 <div class="d-flex gap-1">
-                    <button class="view-btn active" onclick="switchView('day',this)">Day</button>
-                    <button class="view-btn" onclick="switchView('multiday',this)">Multi-Day</button>
-                    <button class="view-btn" onclick="switchView('week',this)">Week</button>
-                    <button class="view-btn" onclick="switchView('month',this)">Month</button>
+                    <button class="view-btn active" onclick="switchView('day',this)">День</button>
+                    <button class="view-btn" onclick="switchView('multiday',this)">3 дні</button>
+                    <button class="view-btn" onclick="switchView('week',this)">Тиждень</button>
+                    <button class="view-btn" onclick="switchView('month',this)">Місяць</button>
                 </div>
             </div>
             <div class="day-strip" id="day-strip">
@@ -79,7 +101,6 @@
         </div>
 
         <div class="content-area">
-            <!-- Всі 4 view рендеряться через JS — не через Razor -->
             <div id="view-day"></div>
             <div id="view-multiday" style="display:none;"></div>
             <div id="view-week" style="display:none;"></div>

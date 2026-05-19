@@ -50,7 +50,7 @@ namespace StudetPlanner.Controllers
             return View();
         }
 
-        // POST: Subject/Create (�������� �����)
+        // POST: Subject/Create (форма)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Subject subject)
@@ -68,12 +68,13 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // POST: Subject/CreateAjax � ��� ���������� ����
+        // POST: Subject/CreateAjax — для модального вікна
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAjax([FromBody] SubjectCreateDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
-                return BadRequest(new { error = "����� �� ���� ���� ���������" });
+                return BadRequest(new { error = "Назва не може бути порожньою" });
 
             int userId = GetUserId();
             var subject = new Subject
@@ -159,13 +160,68 @@ namespace StudetPlanner.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Subject/GetDetailsAjax/5
+        [HttpGet]
+        public async Task<IActionResult> GetDetailsAjax(int id)
+        {
+            int userId = GetUserId();
+            var subject = await _context.Subjects
+                .Include(s => s.Tasks)
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
+            if (subject == null) return NotFound();
+
+            return Ok(new
+            {
+                id = subject.Id,
+                name = subject.Name,
+                description = subject.Description,
+                tasks = (subject.Tasks ?? new List<TaskItem>()).Select(t => new
+                {
+                    id = t.Id,
+                    title = t.Title,
+                    status = t.Status,
+                    priority = t.Priority,
+                    deadline = t.Deadline.HasValue ? t.Deadline.Value.ToString("yyyy-MM-ddTHH:mm") : (string?)null
+                })
+            });
+        }
+
+        // PUT: Subject/UpdateAjax/5
+        [HttpPut]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAjax(int id, [FromBody] SubjectCreateDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name)) return BadRequest(new { error = "Назва не може бути порожньою" });
+            int userId = GetUserId();
+            var subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+            if (subject == null) return NotFound();
+            subject.Name = dto.Name.Trim();
+            subject.Description = dto.Description;
+            await _context.SaveChangesAsync();
+            return Ok(new { id = subject.Id, name = subject.Name, description = subject.Description });
+        }
+
+        // DELETE: Subject/DeleteAjax/5
+        [HttpDelete]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAjax(int id)
+        {
+            int userId = GetUserId();
+            var subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+            if (subject == null) return NotFound();
+            _context.Subjects.Remove(subject);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
         private bool SubjectExists(int id)
         {
-            return _context.Subjects.Any(e => e.Id == id);
+            int userId = GetUserId();
+            return _context.Subjects.Any(e => e.Id == id && e.UserId == userId);
         }
     }
 
-    // DTO ��� AJAX
+    // DTO для AJAX
     public class SubjectCreateDto
     {
         public string Name { get; set; } = "";

@@ -5,13 +5,14 @@
 }
 
 <section class="planner-header">
-    <h1 class="planner-title">Task Timeline</h1>
-    <p class="planner-subtitle">Stay focused on what matters today.</p>
+    <h1 class="planner-title">Мої задачі</h1>
 </section>
 
 <section class="timeline">
     @{
         var hasTasks = false;
+        var priorityLabels = new[] { "Звичайний", "Важливо" };
+        var statusLabels = new[] { "Не розпочато", "В процесі", "Зроблено" };
     }
     @foreach (var item in Model)
     {
@@ -23,12 +24,14 @@
             <div class="task-card">
                 <div class="task-card__title">@item.Title</div>
                 <div class="task-card__meta">
-                    @(item.Deadline?.ToString("dd MMM yyyy") ?? "No deadline") • Priority: @item.Priority • Status: @item.Status
+                    @(item.Deadline?.ToString("dd MMM yyyy") ?? "Без дедлайну") &bull;
+                    @(priorityLabels[item.Priority]) &bull;
+                    @(statusLabels[item.Status])
                 </div>
                 <div class="task-card__actions">
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
                 </div>
             </div>
         </article>
@@ -36,11 +39,10 @@
     @if (!hasTasks)
     {
         <div class="task-card">
-            <div class="task-card__title">No tasks yet</div>
-            <div class="task-card__meta">Tap the + button to create your first task.</div>
+            <div class="task-card__title">Задач ще немає</div>
+            <div class="task-card__meta">Натисни + щоб створити першу задачу.</div>
         </div>
     }
 </section>
 
-<a class="fab-create-task" asp-action="Create" aria-label="Create task">+</a>
-
+<a class="fab-create-task" asp-action="Create" aria-label="Створити задачу">+</a>

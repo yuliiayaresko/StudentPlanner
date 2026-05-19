@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudetPlanner.Models;
@@ -11,10 +12,12 @@ namespace StudetPlanner.Controllers
     public class TasksController : Controller
     {
         private readonly PlannerDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public TasksController(PlannerDbContext context)
+        public TasksController(PlannerDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         private int GetUserId()
@@ -77,6 +80,7 @@ namespace StudetPlanner.Controllers
 
         // ── AJAX ──────────────────────────────────────────────────────────────
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAjax([FromBody] TaskCreateDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
@@ -106,15 +110,18 @@ namespace StudetPlanner.Controllers
             {
                 id = task.Id,
                 title = task.Title,
+                description = task.Description,
                 deadline = task.Deadline?.ToString("yyyy-MM-ddTHH:mm"),
                 createdAt = task.CreatedAt.ToString("yyyy-MM-ddTHH:mm"),
                 subjectId = task.SubjectId,
                 subjectName = subjectName,
-                priority = task.Priority
+                priority = task.Priority,
+                status = task.Status
             });
         }
 
         [HttpPut]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAjax(int id, [FromBody] TaskUpdateDto dto)
         {
             int userId = GetUserId();
@@ -125,12 +132,30 @@ namespace StudetPlanner.Controllers
             task.Description = dto.Description;
             task.Deadline = dto.Deadline;
             task.Priority = dto.Priority;
-            task.Status = dto.Status;
             task.SubjectId = dto.SubjectId > 0 ? dto.SubjectId : null;
+
+            bool isNewlyCompleted = dto.Status == 2 && task.CompletedAt == null;
+            task.Status = dto.Status;
             if (dto.Status == 2 && task.CompletedAt == null) task.CompletedAt = DateTime.Now;
             if (dto.Status != 2) task.CompletedAt = null;
 
             await _context.SaveChangesAsync();
+
+            // Award XP when task is newly completed
+            int xpGain = 0;
+            int newLevel = 0;
+            if (isNewlyCompleted)
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user != null)
+                {
+                    xpGain = task.Priority == 1 ? 20 : 10;
+                    user.ExperiencePoints += xpGain;
+                    user.Level = user.ExperiencePoints / 100 + 1;
+                    newLevel = user.Level;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
 
             string? subjectName = null;
             if (task.SubjectId.HasValue)
@@ -146,11 +171,14 @@ namespace StudetPlanner.Controllers
                 subjectId = task.SubjectId,
                 subjectName,
                 priority = task.Priority,
-                status = task.Status
+                status = task.Status,
+                xpGain,
+                newLevel
             });
         }
 
         [HttpDelete]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAjax(int id)
         {
             int userId = GetUserId();
@@ -220,7 +248,11 @@ namespace StudetPlanner.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
-        private bool TaskItemExists(int id) => _context.Tasks.Any(e => e.Id == id);
+        private bool TaskItemExists(int id)
+        {
+            int userId = GetUserId();
+            return _context.Tasks.Any(e => e.Id == id && e.UserId == userId);
+        }
     }
 
 

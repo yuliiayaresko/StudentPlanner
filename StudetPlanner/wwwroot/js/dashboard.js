@@ -35,9 +35,6 @@ function urgencyBadgeHtml(u) {
     return '';
 }
 function urgencyIcon(u) {
-    if (u === 'overdue') return '⚠ ';
-    if (u === 'urgent') return '🔥 ';
-    if (u === 'soon') return '⏰ ';
     return '';
 }
 
@@ -92,7 +89,7 @@ function renderTodaySummary(dateStr) {
                     <div class="summary-card__value" style="font-size:1rem;line-height:1.3;margin-top:4px;">${nextDeadline}</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-card__label">Streak</div>
+                    <div class="summary-card__label">Серія</div>
                     <div class="summary-card__value" style="color:#f59e0b;">${weekData.streak} <span style="font-size:.9rem;">днів</span></div>
                     <div class="summary-card__sub">поспіль активних</div>
                 </div>
@@ -100,7 +97,7 @@ function renderTodaySummary(dateStr) {
             <div class="week-section">
                 <div class="week-section__header">
                     <span class="week-section__title">Прогрес тижня</span>
-                    <span class="streak-badge">🔥 ${weekData.streak} день streak</span>
+                    <span class="streak-badge">${weekData.streak} день поспіль</span>
                 </div>
                 <div class="week-days-row">${weekData.daysHtml}</div>
             </div>
@@ -114,17 +111,16 @@ function renderTodaySummary(dateStr) {
 function getWeekProgress() {
     const today = new Date();
     const todayStr = localDateStr(today);
-    const dow = (today.getDay() + 6) % 7;
+    const dow = (today.getDay() + 6) % 7; // Monday=0 … Sunday=6
     const weekStart = new Date(today); weekStart.setDate(today.getDate() - dow);
 
     const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
-    let streak = 0;
     let daysHtml = '';
+    const dayData = [];
 
     for (let i = 0; i < 7; i++) {
         const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
         const ds = localDateStr(d);
-        const isPast = ds < todayStr;
         const isToday = ds === todayStr;
         const isFuture = ds > todayStr;
 
@@ -133,8 +129,7 @@ function getWeekProgress() {
         const hasAny = dayTasks.length > 0;
         const allDone = hasAny && doneTasks.length === dayTasks.length;
 
-        // Рахуємо streak — дні до сьогодні де були виконані задачі
-        if ((isPast || isToday) && hasAny && doneTasks.length > 0) streak++;
+        dayData.push({ doneTasks, isToday });
 
         let dotClass = 'week-day-dot';
         if (isFuture) dotClass += ' future';
@@ -149,6 +144,16 @@ function getWeekProgress() {
             <div class="${dotClass}">${isToday ? today.getDate() : (allDone ? '✓' : (hasAny ? dayTasks.length : ''))}</div>
             <span class="week-day-count">${countLabel}</span>
         </div>`;
+    }
+
+    // Streak = consecutive days going backward from today where ≥1 task is done.
+    // If today has no completed tasks yet, start from yesterday (day is not over).
+    let streak = 0;
+    let startIdx = dow;
+    if (dayData[startIdx]?.doneTasks.length === 0) startIdx--;
+    for (let i = startIdx; i >= 0; i--) {
+        if (dayData[i].doneTasks.length > 0) streak++;
+        else break;
     }
 
     return { streak, daysHtml };
@@ -200,10 +205,8 @@ function refreshCurrentView() {
 /* ── SIDEBAR: task counts per subject ───── */
 function renderSidebarCounts() {
     document.querySelectorAll('.subject-link').forEach(link => {
-        const href = link.getAttribute('href') || '';
-        const match = href.match(/\/(\d+)$/);
-        if (!match) return;
-        const sid = parseInt(match[1]);
+        const sid = parseInt(link.dataset.subjectId || '0');
+        if (!sid) return;
         const count = localTasks.filter(t => t.subjectId === sid && t.status !== 2).length;
         let badge = link.querySelector('.subject-task-count');
         if (count > 0) {
@@ -219,7 +222,17 @@ function renderSidebarCounts() {
     });
 }
 
-/* ── URGENCY BANNER ──────────────────────── */
+/* ── URGENCY BANNER (expandable) ─────────── */
+let urgencyBannerExpanded = false;
+function toggleUrgencyBanner() {
+    urgencyBannerExpanded = !urgencyBannerExpanded;
+    const wrap = document.querySelector('.sp-urgency-tasks-wrap');
+    const btn = document.querySelector('.sp-urgency-toggle');
+    if (!wrap || !btn) return;
+    if (urgencyBannerExpanded) { wrap.classList.add('expanded'); btn.textContent = 'Згорнути ↑'; }
+    else { wrap.classList.remove('expanded'); btn.textContent = 'Показати всі ↓'; }
+}
+
 function renderUrgencyBanner() {
     const existing = document.getElementById('sp-urgency-banner');
     if (existing) existing.remove();
@@ -230,16 +243,14 @@ function renderUrgencyBanner() {
     if (!combined.length) return;
 
     const countPills = [
-        overdueList.length ? `<span class="sp-urgency-count-pill overdue">⚠ ${overdueList.length} прострочено</span>` : '',
-        urgentList.length ? `<span class="sp-urgency-count-pill urgent">🔥 ${urgentList.length} менше 3 год</span>` : ''
+        overdueList.length ? `<span class="sp-urgency-count-pill overdue">${overdueList.length} прострочено</span>` : '',
+        urgentList.length ? `<span class="sp-urgency-count-pill urgent">${urgentList.length} менше 3 год</span>` : ''
     ].filter(Boolean).join('');
 
-    const taskBtns = combined.slice(0, 4).map(t => {
+    const taskBtns = combined.map(t => {
         const u = getUrgency(t);
         return `<button class="sp-urgency-task ${u}" onclick="openTaskDetails(${t.id})" title="${escHtml(t.title || '')}">${escHtml(t.title || '')}</button>`;
     }).join('');
-
-    const more = combined.length > 4 ? `<span style="color:#555;font-size:.72rem;">+${combined.length - 4} ще</span>` : '';
 
     const banner = document.createElement('div');
     banner.id = 'sp-urgency-banner';
@@ -248,7 +259,8 @@ function renderUrgencyBanner() {
             <span class="sp-urgency-label">Дедлайни:</span>
             <div class="sp-urgency-counts">${countPills}</div>
             <span class="sp-urgency-divider">·</span>
-            <div class="sp-urgency-tasks">${taskBtns}${more}</div>
+            <button class="sp-urgency-toggle" onclick="toggleUrgencyBanner()">${urgencyBannerExpanded ? 'Згорнути ↑' : 'Показати всі ↓'}</button>
+            <div class="sp-urgency-tasks-wrap${urgencyBannerExpanded ? ' expanded' : ''}">${taskBtns}</div>
         </div>
         <button class="sp-urgency-close" onclick="this.closest('#sp-urgency-banner').remove()">✕</button>`;
 
@@ -264,9 +276,22 @@ function renderDayView(dateStr) {
         .sort((a, b) => (a.deadline || a.createdAt).localeCompare(b.deadline || b.createdAt));
 
     if (!tasks.length) {
+        const isToday = dateStr === localDateStr(new Date());
+        const dateLabel = new Date(dateStr + 'T00:00').toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' });
+        const msgs = [
+            'Вільний день — це теж результат!',
+            'Відмінний момент, щоб відпочити.',
+            'Може, додати щось корисне?',
+            'Чисто! Плануй щось нове.',
+            'Сьогодні можна розслабитись.',
+            'Немає задач — час для себе!',
+            'Ідеальний день для нових планів.',
+        ];
+        const msg = msgs[new Date(dateStr).getDay() % msgs.length];
         container.innerHTML = `<div class="empty-state">
-            <p style="font-size:1rem;color:#666;">На цей день задач немає</p>
-            <p style="font-size:0.82rem;margin-top:4px;">Натисни + щоб додати першу</p>
+            <div class="empty-state__date">${dateLabel}</div>
+            <p class="empty-state__msg">${isToday ? msg : 'На цей день задач немає'}</p>
+            <button class="empty-state__btn" onclick="openTaskModal()">＋ Додати задачу</button>
         </div>`;
         return;
     }
@@ -295,10 +320,15 @@ function renderDayView(dateStr) {
 
         return `<div class="timeline-item" style="cursor:pointer" onclick="openTaskDetails(${t.id})">
             <div class="timeline-time">${timeStr}</div>
-            <div class="${cardClass}" style="${cardStyle}">
-                <div class="task-card__title" style="${titleStyle}">${escHtml(t.title || '')}</div>
-                ${subHtml}${dlHtml}
-                ${badges ? `<div class="task-card__badges">${badges}</div>` : ''}
+            <div class="${cardClass}" style="${cardStyle}display:flex;align-items:center;gap:10px;">
+                <div style="flex:1;min-width:0;">
+                    <div class="task-card__title" style="${titleStyle}">${escHtml(t.title || '')}</div>
+                    ${subHtml}${dlHtml}
+                    ${badges ? `<div class="task-card__badges">${badges}</div>` : ''}
+                </div>
+                <button class="task-toggle-btn${t.status === 2 ? ' done' : ''}"
+                    onclick="event.stopPropagation();toggleTaskDone(${t.id})"
+                    title="${t.status === 2 ? 'Скасувати виконання' : 'Позначити як виконане'}">${t.status === 2 ? '✓' : '○'}</button>
             </div>
         </div>`;
     }).join('');
@@ -393,7 +423,36 @@ function openSubjectModal() {
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function overlayClick(e, id) { if (e.target.id === id) closeModal(id); }
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModal('task-modal'); closeModal('subject-modal'); closeDetailPanel(); }
+    // Always handle Escape regardless of where focus is
+    if (e.key === 'Escape') { closeModal('task-modal'); closeModal('subject-modal'); closeDetailPanel(); closeSubjectPanel(); closeAchievementsPanel(); return; }
+
+    // Skip shortcuts when user is typing in an input/textarea/select
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    // Skip if any modal or detail panel is open
+    const modalOpen = document.querySelector('.sp-overlay.open');
+    const panelOpen = document.getElementById('sp-detail-panel')?.classList.contains('open');
+    if (modalOpen || panelOpen) return;
+
+    switch (e.key) {
+        case 'n': case 'N':
+            e.preventDefault();
+            openTaskModal();
+            break;
+        case '1':
+            document.querySelectorAll('.view-btn')[0]?.click();
+            break;
+        case '2':
+            document.querySelectorAll('.view-btn')[1]?.click();
+            break;
+        case '3':
+            document.querySelectorAll('.view-btn')[2]?.click();
+            break;
+        case '4':
+            document.querySelectorAll('.view-btn')[3]?.click();
+            break;
+    }
 });
 
 /* ── COLOR PICKER ────────────────────────── */
@@ -460,8 +519,10 @@ async function submitSubject() {
 
     const list = document.getElementById('subject-list-sidebar');
     const link = document.createElement('a');
-    link.href = `/Subject/Details/${subj.id}`;
+    link.href = 'javascript:void(0)';
     link.className = 'subject-link';
+    link.dataset.subjectId = subj.id;
+    link.onclick = () => openSubjectPanel(subj.id);
     link.innerHTML = `<div class="subject-dot" style="background:${selectedColor}"></div><span>${escHtml(subj.name)}</span>`;
     list.appendChild(link);
 
@@ -472,10 +533,225 @@ async function submitSubject() {
     renderSidebarCounts();
 }
 
+/* ── SUBJECT SIDE PANEL ──────────────────── */
+let currentSubjectId = null;
+
+async function openSubjectPanel(subjectId) {
+    closeDetailPanel();
+    currentSubjectId = subjectId;
+    const res = await fetch(`/Subject/GetDetailsAjax/${subjectId}`, {
+        headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+    });
+    if (!res.ok) { showToast('Помилка завантаження предмету', true); return; }
+    const data = await res.json();
+    renderSubjectPanel(data);
+    document.getElementById('sp-subject-panel').classList.add('open');
+    document.getElementById('sp-subject-backdrop').classList.add('open');
+}
+
+function closeSubjectPanel() {
+    document.getElementById('sp-subject-panel').classList.remove('open');
+    document.getElementById('sp-subject-backdrop').classList.remove('open');
+    currentSubjectId = null;
+}
+
+function renderSubjectPanel(data) {
+    const color = getColor(data.id);
+    const tasks = data.tasks || [];
+    const groups = [
+        { label: 'В процесі',   status: 1, dot: '#f59e0b' },
+        { label: 'Не розпочато', status: 0, dot: '#6b7280' },
+        { label: 'Зроблено',    status: 2, dot: '#10b981' },
+    ];
+
+    const groupsHtml = groups.map(g => {
+        const gtasks = tasks.filter(t => t.status === g.status);
+        if (!gtasks.length) return '';
+        const rows = gtasks.map(t => {
+            const dl = t.deadline ? `<span class="ssp-task-deadline">${new Date(t.deadline).toLocaleDateString('uk-UA', { day:'2-digit', month:'short' })}</span>` : '';
+            const pri = t.priority === 1 ? `<span class="ssp-task-pri">⚡</span>` : '';
+            return `<div class="ssp-task-row" onclick="openTaskFromSubjectPanel(${t.id})">
+                <div class="ssp-task-dot" style="background:${g.dot}"></div>
+                <span class="ssp-task-title${g.status === 2 ? ' done' : ''}">${escHtml(t.title || '')}</span>
+                ${pri}${dl}
+            </div>`;
+        }).join('');
+        return `<div class="ssp-group-label">${g.label} <span class="ssp-group-count">${gtasks.length}</span></div>${rows}`;
+    }).join('');
+
+    document.getElementById('sp-subject-panel').innerHTML = `
+        <div class="ssp-header" style="background:${color}22;border-bottom:1px solid ${color}33;">
+            <button class="ssp-close" onclick="closeSubjectPanel()">✕</button>
+            <div class="ssp-title-wrap">
+                <span class="ssp-title" id="ssp-title-text" onclick="startEditSubjectName()" title="Натисни для редагування">${escHtml(data.name)}</span>
+                <input class="ssp-title-input" id="ssp-title-input" value="${escHtml(data.name)}"
+                    onblur="saveSubjectName(${data.id})" onkeydown="if(event.key==='Enter')saveSubjectName(${data.id});if(event.key==='Escape')cancelEditSubjectName();" />
+            </div>
+            ${data.description ? `<div class="ssp-desc">${escHtml(data.description)}</div>` : ''}
+        </div>
+        <div class="ssp-body">
+            <button class="ssp-add-btn" onclick="openTaskModalForSubject(${data.id})">＋ Додати задачу для цього предмету</button>
+            ${groupsHtml || '<div class="ssp-empty">Задач ще немає</div>'}
+        </div>
+        <div class="ssp-footer">
+            <button class="ssp-btn-delete" onclick="deleteSubject(${data.id})">Видалити предмет</button>
+        </div>`;
+}
+
+function openTaskFromSubjectPanel(taskId) {
+    closeSubjectPanel();
+    openTaskDetails(taskId);
+}
+
+function openTaskModalForSubject(subjectId) {
+    closeSubjectPanel();
+    openTaskModal();
+    setTimeout(() => {
+        const sel = document.getElementById('task-subject');
+        if (sel) sel.value = subjectId;
+    }, 50);
+}
+
+function startEditSubjectName() {
+    document.getElementById('ssp-title-text').style.display = 'none';
+    const inp = document.getElementById('ssp-title-input');
+    inp.style.display = 'block';
+    inp.focus(); inp.select();
+}
+
+function cancelEditSubjectName() {
+    document.getElementById('ssp-title-text').style.display = '';
+    document.getElementById('ssp-title-input').style.display = 'none';
+}
+
+async function saveSubjectName(subjectId) {
+    const inp = document.getElementById('ssp-title-input');
+    if (!inp) return;
+    const newName = inp.value.trim();
+    if (!newName) { cancelEditSubjectName(); return; }
+    const res = await fetch(`/Subject/UpdateAjax/${subjectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgeryToken() },
+        body: JSON.stringify({ name: newName, description: null })
+    });
+    if (!res.ok) { showToast('Помилка збереження', true); cancelEditSubjectName(); return; }
+    const updated = await res.json();
+    // Update sidebar link text
+    const link = document.querySelector(`.subject-link[data-subject-id="${subjectId}"] span`);
+    if (link) link.textContent = updated.name;
+    // Update allSubjects
+    const si = allSubjects.findIndex(s => s.id === subjectId);
+    if (si >= 0) allSubjects[si].name = updated.name;
+    // Update tasks
+    localTasks.filter(t => t.subjectId === subjectId).forEach(t => t.subjectName = updated.name);
+    cancelEditSubjectName();
+    document.getElementById('ssp-title-text').textContent = updated.name;
+    showToast('Предмет оновлено');
+}
+
+async function deleteSubject(subjectId) {
+    if (!confirm('Видалити предмет? Усі задачі предмету також будуть видалені.')) return;
+    const res = await fetch(`/Subject/DeleteAjax/${subjectId}`, {
+        method: 'DELETE',
+        headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+    });
+    if (!res.ok) { showToast('Помилка видалення', true); return; }
+    // Remove from sidebar
+    const link = document.querySelector(`.subject-link[data-subject-id="${subjectId}"]`);
+    if (link) link.remove();
+    // Remove tasks from local state
+    localTasks = localTasks.filter(t => t.subjectId !== subjectId);
+    const si = allSubjects.findIndex(s => s.id === subjectId);
+    if (si >= 0) allSubjects.splice(si, 1);
+    // Remove from task-subject select
+    const opt = document.querySelector(`#task-subject option[value="${subjectId}"]`);
+    if (opt) opt.remove();
+    closeSubjectPanel();
+    showToast('Предмет видалено');
+    refreshCurrentView();
+}
+
+/* ── ACHIEVEMENTS PANEL ──────────────────── */
+async function openAchievementsPanel() {
+    let modal = document.getElementById('sp-achievements-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'sp-achievements-modal';
+        modal.onclick = e => { if (e.target === modal) closeAchievementsPanel(); };
+        modal.innerHTML = `<div class="ach-box"><div class="ach-header">
+            <button class="ach-close" onclick="closeAchievementsPanel()">✕</button>
+            <div class="ach-level-title" id="ach-level-text">Завантаження...</div>
+            <div class="ach-xp-track"><div class="ach-xp-fill" id="ach-xp-fill" style="width:0%"></div></div>
+            <div class="ach-xp-label" id="ach-xp-label"></div>
+        </div><div class="ach-body" id="ach-body"></div></div>`;
+        document.body.appendChild(modal);
+    }
+    requestAnimationFrame(() => modal.classList.add('open'));
+    const res = await fetch('/Dashboard/GetAchievements');
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('ach-level-text').textContent = `Рівень ${data.level} · ${data.xp} XP`;
+    document.getElementById('ach-xp-fill').style.width = `${data.xpInLevel}%`;
+    document.getElementById('ach-xp-label').textContent = `${data.xpInLevel}/100 XP до наступного рівня`;
+    document.getElementById('ach-body').innerHTML = data.achievements.map(a => `
+        <div class="ach-item${a.unlocked ? ' unlocked' : ''}">
+            <div class="ach-icon">${a.icon}</div>
+            <div class="ach-info">
+                <div class="ach-name">${escHtml(a.name)}</div>
+                <div class="ach-desc">${escHtml(a.desc)}</div>
+            </div>
+            <div class="ach-progress-wrap">
+                <div class="ach-progress-bar"><div class="ach-progress-fill" style="width:${Math.round(a.progress/a.total*100)}%"></div></div>
+                <div class="ach-progress-text">${a.unlocked ? '✓' : `${a.progress}/${a.total}`}</div>
+            </div>
+        </div>`).join('');
+}
+
+function closeAchievementsPanel() {
+    const modal = document.getElementById('sp-achievements-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+/* ── XP NAVBAR UPDATE ────────────────────── */
+function updateNavbarXp(xpGain) {
+    const fillEl = document.querySelector('.sp-xp-fill');
+    const levelEl = document.querySelector('.sp-xp-level');
+    const ptsEl = document.querySelector('.sp-xp-pts');
+    if (!fillEl || !levelEl || !ptsEl) return;
+
+    const ptsMatch = ptsEl.textContent.match(/^(\d+)\/100/);
+    if (!ptsMatch) return;
+    let xpInLevel = parseInt(ptsMatch[1]) + xpGain;
+
+    const levelMatch = levelEl.textContent.match(/(\d+)/);
+    let level = levelMatch ? parseInt(levelMatch[1]) : 1;
+
+    while (xpInLevel >= 100) { xpInLevel -= 100; level++; }
+
+    fillEl.style.width = `${xpInLevel}%`;
+    levelEl.textContent = `Рівень ${level}`;
+    ptsEl.textContent = `${xpInLevel}/100 XP`;
+}
+
+/* ── XP FLOAT ANIMATION ──────────────────── */
+function showXpFloat(xpGain) {
+    const el = document.createElement('div');
+    el.className = 'xp-float';
+    el.textContent = `+${xpGain} XP`;
+    // Position near the FAB button
+    const fab = document.getElementById('sp-fab');
+    const rect = fab ? fab.getBoundingClientRect() : { left: window.innerWidth - 80, top: window.innerHeight - 80 };
+    el.style.left = `${rect.left - 20}px`;
+    el.style.top = `${rect.top - 10}px`;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+}
+
 /* ── TASK DETAIL PANEL ───────────────────── */
 function openTaskDetails(taskId) {
     const t = localTasks.find(x => x.id === taskId);
     if (!t) return;
+    closeSubjectPanel();
     detailTaskId = taskId; _pendingStatus = null; _pendingPriority = null;
     renderDetailPanel(t);
     document.getElementById('sp-detail-panel').classList.add('open');
@@ -501,7 +777,6 @@ function renderDetailPanel(t) {
     document.getElementById('sp-detail-panel').innerHTML = `
         <div class="sdp-header" style="background:${headerColor}">
             <button class="sdp-close" onclick="closeDetailPanel()">✕</button>
-            <div class="sdp-header-icon">${urgency === 'overdue' ? '⚠️' : urgency === 'urgent' ? '🔥' : '📌'}</div>
             <div class="sdp-header-title">${escHtml(t.title || '')}</div>
             <div class="sdp-header-sub">${escHtml(t.subjectName || 'Без предмету')}${t.priority === 1 ? ' · Важливо' : ''}</div>
         </div>
@@ -574,20 +849,80 @@ async function saveTaskDetails() {
     const idx = localTasks.findIndex(x => x.id === detailTaskId);
     localTasks[idx] = { ...localTasks[idx], ...updated, subjectName: foundSubj?.name || null };
     _pendingStatus = null; _pendingPriority = null;
-    showToast('Збережено');
+    if (updated.xpGain > 0) { showToast(`Збережено · +${updated.xpGain} XP`); showXpFloat(updated.xpGain); updateNavbarXp(updated.xpGain); }
+    else showToast('Збережено');
     closeDetailPanel();
     refreshCurrentView();
 }
 
 /* ── AJAX: DELETE ────────────────────────── */
-async function deleteTaskDetail() {
-    if (!confirm('Видалити задачу?')) return;
+let _deleteArmed = false;
+let _deleteArmTimer = null;
+
+function deleteTaskDetail() {
+    const btn = document.querySelector('.sdp-btn-delete');
+    if (!btn) return;
+
+    if (!_deleteArmed) {
+        // Arm: change button appearance, auto-disarm after 3s
+        _deleteArmed = true;
+        btn.textContent = 'Підтвердити?';
+        btn.classList.add('armed');
+        _deleteArmTimer = setTimeout(() => _disarmDeleteBtn(), 3000);
+
+        // Disarm if user clicks anywhere else
+        setTimeout(() => document.addEventListener('click', _disarmOnOutsideClick, { once: true, capture: true }), 0);
+        return;
+    }
+
+    // Confirmed — execute delete
+    _disarmDeleteBtn();
+    _doDeleteTask();
+}
+
+function _disarmDeleteBtn() {
+    _deleteArmed = false;
+    clearTimeout(_deleteArmTimer);
+    document.removeEventListener('click', _disarmOnOutsideClick, true);
+    const btn = document.querySelector('.sdp-btn-delete');
+    if (btn) { btn.textContent = 'Видалити'; btn.classList.remove('armed'); }
+}
+
+function _disarmOnOutsideClick(e) {
+    const btn = document.querySelector('.sdp-btn-delete');
+    if (btn && !btn.contains(e.target)) _disarmDeleteBtn();
+}
+
+async function _doDeleteTask() {
     const res = await fetch(`/Tasks/DeleteAjax/${detailTaskId}`, {
         method: 'DELETE', headers: { 'RequestVerificationToken': getAntiForgeryToken() }
     });
     if (!res.ok) { showToast('Помилка видалення', true); return; }
     localTasks = localTasks.filter(t => t.id !== detailTaskId);
     closeDetailPanel(); showToast('Задачу видалено');
+    refreshCurrentView();
+}
+
+/* ── QUICK TOGGLE DONE ───────────────────── */
+async function toggleTaskDone(taskId) {
+    const t = localTasks.find(x => x.id === taskId);
+    if (!t) return;
+    const newStatus = t.status === 2 ? 0 : 2;
+    const res = await fetch(`/Tasks/UpdateAjax/${taskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgeryToken() },
+        body: JSON.stringify({
+            title: t.title, description: t.description,
+            deadline: t.deadline, priority: t.priority,
+            status: newStatus, subjectId: t.subjectId
+        })
+    });
+    if (!res.ok) { showToast('Помилка збереження', true); return; }
+    const updated = await res.json();
+    const idx = localTasks.findIndex(x => x.id === taskId);
+    localTasks[idx] = { ...localTasks[idx], status: updated.status };
+    if (updated.xpGain > 0) { showToast(`Виконано · +${updated.xpGain} XP`); showXpFloat(updated.xpGain); updateNavbarXp(updated.xpGain); }
+    else showToast(newStatus === 2 ? 'Виконано ✓' : 'Скасовано');
     refreshCurrentView();
 }
 
@@ -628,25 +963,21 @@ function quickAdd() {
                 </div>
                 <div class="modal-body">
                     <div class="modal-field">
-                        <span class="modal-field-icon">📅</span>
-                        <input type="datetime-local" id="task-deadline" min="${new Date().toISOString().substring(0, 16)}" />
+                        <input type="datetime-local" id="task-deadline" min="${new Date().toISOString().substring(0, 16)}" placeholder="Дедлайн" />
                     </div>
                     <div class="modal-field">
-                        <span class="modal-field-icon">📚</span>
                         <select id="task-subject">
                             <option value="">— без предмету —</option>
                             ${subjectOptions}
                         </select>
                     </div>
                     <div class="modal-field">
-                        <span class="modal-field-icon">🎯</span>
                         <select id="task-priority">
                             <option value="0">Звичайний пріоритет</option>
                             <option value="1">Важливо</option>
                         </select>
                     </div>
                     <div class="modal-field">
-                        <span class="modal-field-icon">📝</span>
                         <textarea id="task-notes" rows="2" placeholder="Нотатки..."></textarea>
                     </div>
                 </div>
@@ -679,6 +1010,8 @@ function quickAdd() {
             </div>
         </div>
 
+        <div id="sp-subject-backdrop" onclick="closeSubjectPanel()"></div>
+        <div id="sp-subject-panel"></div>
         <div id="sp-detail-backdrop" onclick="closeDetailPanel()"></div>
         <div id="sp-detail-panel"></div>
         <div id="sp-toast"></div>

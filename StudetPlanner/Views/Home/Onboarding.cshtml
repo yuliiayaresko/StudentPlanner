@@ -1,41 +1,29 @@
-﻿@{
+@{
     Layout = null;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
     <meta charset="utf-8" />
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="~/css/onboarding.css" />
 </head>
 <body>
 
     <div class="container">
-
         <div class="content">
-
-            <div class="logo">✔</div>
-
-            <h1>Welcome to</h1>
+            <div class="logo">&#10003;</div>
+            <h1>Ласкаво просимо до</h1>
             <h2>Student Planner</h2>
-
             <p>
-                Plan your day, stay productive, and achieve your goals with a smart student planner.
+                Плануй свій день, залишайся продуктивним та досягай своїх цілей.
             </p>
-
-           
-
             <form method="post" asp-controller="Home" asp-action="OnboardingComplete">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="start-btn">Get Started</button>
+                <button type="submit" class="start-btn">Розпочати</button>
             </form>
-
-
         </div>
-
     </div>
 
 </body>
