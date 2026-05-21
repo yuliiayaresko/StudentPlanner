@@ -78,7 +78,6 @@ namespace StudetPlanner.Controllers
             return View(taskItem);
         }
 
-        // ── AJAX ──────────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAjax([FromBody] TaskCreateDto dto)
@@ -141,7 +140,6 @@ namespace StudetPlanner.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Award XP when task is newly completed
             int xpGain = 0;
             int newLevel = 0;
             if (isNewlyCompleted)
@@ -188,7 +186,6 @@ namespace StudetPlanner.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
-        // ─────────────────────────────────────────────────────────────────────
 
         public async Task<IActionResult> Edit(int? id)
         {

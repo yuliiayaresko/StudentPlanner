@@ -20,5 +20,10 @@ namespace StudetPlanner.Models
         public ICollection<UserAchievement>? UserAchievements { get; set; }
 
         public ICollection<Reward>? Rewards { get; set; }
+
+        public string? TelegramChatId { get; set; }
+        public bool TelegramNotifications { get; set; } = false;
+        public string? TelegramConnectCode { get; set; }
+        public DateTime? TelegramConnectCodeExpiry { get; set; }
     }
 }

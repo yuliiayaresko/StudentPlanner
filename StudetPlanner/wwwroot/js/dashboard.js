@@ -359,7 +359,7 @@ function renderMultidayView() {
         const t = localTasks.filter(x => (x.deadline || x.createdAt).startsWith(ds)).sort((a, b) => (a.deadline || a.createdAt).localeCompare(b.deadline || b.createdAt));
         return `<div class="cal-cell ${isT ? 'today-col' : ''}">${t.map(pillHtml).join('')}</div>`;
     }).join('');
-    document.getElementById('view-multiday').innerHTML = `<div class="multiday-grid"><div class="cal-header" style="background:#1a1a22;"></div>${headers}<div class="cal-cell" style="background:#1a1a22;"></div>${cells}</div>`;
+    document.getElementById('view-multiday').innerHTML = `<div class="multiday-grid"><div class="cal-header" style="background:var(--clr-surface);"></div>${headers}<div class="cal-cell" style="background:var(--clr-surface);"></div>${cells}</div>`;
 }
 
 /* ── WEEK VIEW ───────────────────────────── */
@@ -377,7 +377,7 @@ function renderWeekView() {
         const t = localTasks.filter(x => (x.deadline || x.createdAt).startsWith(ds)).sort((a, b) => (a.deadline || a.createdAt).localeCompare(b.deadline || b.createdAt));
         return `<div class="cal-cell ${isT ? 'today-col' : ''}" style="min-height:100px;">${t.map(pillHtml).join('')}</div>`;
     }).join('');
-    document.getElementById('view-week').innerHTML = `<div class="week-grid"><div class="cal-header" style="background:#1a1a22;"></div>${headers}<div class="cal-cell" style="background:#1a1a22;min-height:100px;"></div>${cells}</div>`;
+    document.getElementById('view-week').innerHTML = `<div class="week-grid"><div class="cal-header" style="background:var(--clr-surface);"></div>${headers}<div class="cal-cell" style="background:var(--clr-surface);min-height:100px;"></div>${cells}</div>`;
 }
 
 /* ── MONTH VIEW ──────────────────────────── */
@@ -391,7 +391,7 @@ function renderMonthView() {
         const ds = localDateStr(d); const isT = ds === todayStr; const om = d.getMonth() !== today.getMonth();
         const t = localTasks.filter(x => x.deadline && x.deadline.startsWith(ds));
         const pills = t.slice(0, 3).map(pillHtml).join('');
-        const more = t.length > 3 ? `<div style="font-size:.65rem;color:#555;">+${t.length - 3}</div>` : '';
+        const more = t.length > 3 ? `<div style="font-size:.65rem;color:var(--txt-tertiary);">+${t.length - 3}</div>` : '';
         return `<div class="month-cell ${isT ? 'today' : ''} ${om ? 'other-month' : ''}"><div class="day-num">${d.getDate()}</div>${pills}${more}</div>`;
     }).join('');
     document.getElementById('view-month').innerHTML = `<div class="month-grid">${dayHeaders}${cells}</div>`;
@@ -996,7 +996,7 @@ function quickAdd() {
                 </div>
                 <div class="modal-body">
                     <div class="modal-field" style="flex-direction:column;align-items:flex-start;gap:8px">
-                        <span style="font-size:.75rem;color:#888">Колір</span>
+                        <span style="font-size:.75rem;color:var(--txt-secondary)">Колір</span>
                         <div class="color-picker-row" id="color-picker"></div>
                     </div>
                     <div class="modal-field">

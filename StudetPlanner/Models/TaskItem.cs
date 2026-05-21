@@ -10,10 +10,8 @@ namespace StudetPlanner.Models
 
         public DateTime? Deadline { get; set; }
 
-        // 0 - Неважливо, 1 - Важливо
         public int Priority { get; set; } = 0;
 
-        // 0 - Не розпочато, 1 - В процесі, 2 - Зроблено
         public int Status { get; set; } = 0;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -29,5 +27,9 @@ namespace StudetPlanner.Models
         public User? User { get; set; }
 
         public ICollection<Reward>? Rewards { get; set; }
+
+        public bool Notified24h { get; set; } = false;
+        public bool Notified3h { get; set; } = false;
+        public bool NotifiedOverdue { get; set; } = false;
     }
 }

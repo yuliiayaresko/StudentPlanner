@@ -22,7 +22,6 @@ namespace StudetPlanner.Controllers
             return int.TryParse(claim, out int id) ? id : 0;
         }
 
-        // GET: Subject
         public async Task<IActionResult> Index()
         {
             int userId = GetUserId();
@@ -32,7 +31,6 @@ namespace StudetPlanner.Controllers
             return View(subjects);
         }
 
-        // GET: Subject/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -44,13 +42,11 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // GET: Subject/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Subject/Create (форма)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Subject subject)
@@ -68,7 +64,6 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // POST: Subject/CreateAjax — для модального вікна
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAjax([FromBody] SubjectCreateDto dto)
@@ -95,7 +90,6 @@ namespace StudetPlanner.Controllers
             });
         }
 
-        // GET: Subject/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -106,7 +100,6 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // POST: Subject/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Subject subject)
@@ -133,7 +126,6 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // GET: Subject/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -144,7 +136,6 @@ namespace StudetPlanner.Controllers
             return View(subject);
         }
 
-        // POST: Subject/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -160,7 +151,6 @@ namespace StudetPlanner.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Subject/GetDetailsAjax/5
         [HttpGet]
         public async Task<IActionResult> GetDetailsAjax(int id)
         {
@@ -186,7 +176,6 @@ namespace StudetPlanner.Controllers
             });
         }
 
-        // PUT: Subject/UpdateAjax/5
         [HttpPut]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAjax(int id, [FromBody] SubjectCreateDto dto)
@@ -201,7 +190,6 @@ namespace StudetPlanner.Controllers
             return Ok(new { id = subject.Id, name = subject.Name, description = subject.Description });
         }
 
-        // DELETE: Subject/DeleteAjax/5
         [HttpDelete]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAjax(int id)
@@ -221,7 +209,6 @@ namespace StudetPlanner.Controllers
         }
     }
 
-    // DTO для AJAX
     public class SubjectCreateDto
     {
         public string Name { get; set; } = "";

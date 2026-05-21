@@ -43,32 +43,26 @@ namespace StudetPlanner.Services
             var now = DateTime.Now;
             var tasks = new[]
             {
-                // Сьогодні — різні стани
                 new TaskItem { Title = "Підготуватись до лекції з математики",    SubjectId = subjects[0].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.Date.AddHours(10),  CreatedAt = now },
                 new TaskItem { Title = "Розв'язати задачі з інтегралів",           SubjectId = subjects[0].Id, UserId = user.Id, Priority = 0, Status = 1, Deadline = now.Date.AddHours(14),  CreatedAt = now },
                 new TaskItem { Title = "Написати лабораторну роботу з C#",        SubjectId = subjects[1].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.Date.AddHours(16),  CreatedAt = now },
                 new TaskItem { Title = "Прочитати статтю про ASP.NET Core",       SubjectId = subjects[1].Id, UserId = user.Id, Priority = 0, Status = 2, Deadline = now.Date.AddHours(9),   CreatedAt = now, CompletedAt = now.AddHours(-2) },
                 new TaskItem { Title = "Повторити слова з теми Travel",           SubjectId = subjects[3].Id, UserId = user.Id, Priority = 0, Status = 2, CreatedAt = now,                   CompletedAt = now.AddHours(-1) },
 
-                // Завтра
                 new TaskItem { Title = "Підготовка до семінару з фізики",         SubjectId = subjects[2].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.Date.AddDays(1).AddHours(11), CreatedAt = now },
                 new TaskItem { Title = "Вивчити нові слова (Unit 8)",             SubjectId = subjects[3].Id, UserId = user.Id, Priority = 0, Status = 0, Deadline = now.Date.AddDays(1).AddHours(15), CreatedAt = now },
                 new TaskItem { Title = "Прочитати параграф 5 з термодинаміки",   SubjectId = subjects[2].Id, UserId = user.Id, Priority = 0, Status = 0, Deadline = now.Date.AddDays(1).AddHours(20), CreatedAt = now },
 
-                // Через 2 дні
                 new TaskItem { Title = "Есе з філософії — Декарт і раціоналізм", SubjectId = subjects[4].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.Date.AddDays(2).AddHours(12), CreatedAt = now },
                 new TaskItem { Title = "Контрольна з фізики — термодинаміка",    SubjectId = subjects[2].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.Date.AddDays(2).AddHours(10), CreatedAt = now },
 
-                // Прострочені
                 new TaskItem { Title = "Здати реферат з математики",              SubjectId = subjects[0].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.AddHours(-26),       CreatedAt = now.AddDays(-3) },
                 new TaskItem { Title = "Виправити помилки в коді (PR)",           SubjectId = subjects[1].Id, UserId = user.Id, Priority = 0, Status = 0, Deadline = now.AddHours(-2),        CreatedAt = now.AddDays(-1) },
 
-                // Виконані (вчора / позавчора)
                 new TaskItem { Title = "Прочитати розділ 3 підручника",           SubjectId = subjects[3].Id, UserId = user.Id, Priority = 0, Status = 2, CreatedAt = now.AddDays(-2), CompletedAt = now.AddDays(-2).AddHours(3) },
                 new TaskItem { Title = "Здати домашнє завдання з алгебри",        SubjectId = subjects[0].Id, UserId = user.Id, Priority = 0, Status = 2, Deadline = now.AddDays(-2).AddHours(18), CreatedAt = now.AddDays(-3), CompletedAt = now.AddDays(-2) },
                 new TaskItem { Title = "Пройти тест на Coursera",                 SubjectId = subjects[1].Id, UserId = user.Id, Priority = 0, Status = 2, CreatedAt = now.AddDays(-1), CompletedAt = now.AddDays(-1).AddHours(2) },
 
-                // Наступний тиждень
                 new TaskItem { Title = "Іспит з англійської мови",               SubjectId = subjects[3].Id, UserId = user.Id, Priority = 1, Status = 0, Deadline = now.AddDays(5).AddHours(10),  CreatedAt = now },
                 new TaskItem { Title = "Курсова робота — фінальна версія",        SubjectId = subjects[1].Id, UserId = user.Id, Priority = 1, Status = 1, Deadline = now.AddDays(7),               CreatedAt = now.AddDays(-5) },
                 new TaskItem { Title = "Презентація з філософії",                 SubjectId = subjects[4].Id, UserId = user.Id, Priority = 0, Status = 0, Deadline = now.AddDays(6).AddHours(14),  CreatedAt = now },

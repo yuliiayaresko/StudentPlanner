@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudetPlanner;
 
@@ -11,9 +12,11 @@ using StudetPlanner;
 namespace StudetPlanner.Migrations
 {
     [DbContext(typeof(PlannerDbContext))]
-    partial class PlannerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521204510_AddViberAndNotificationFields")]
+    partial class AddViberAndNotificationFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,24 +356,24 @@ namespace StudetPlanner.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TelegramChatId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TelegramConnectCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("TelegramConnectCodeExpiry")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("TelegramNotifications")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ViberConnectCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ViberConnectCodeExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ViberId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("ViberNotifications")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

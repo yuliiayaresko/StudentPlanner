@@ -1,10 +1,10 @@
 ﻿:root {
-  --bg: #0f0f14;
-  --card: #1a1a22;
+  --bg: #f5f5f7;
+  --card: #ffffff;
   --accent: #ff4fd8;
-  --border: #2a2a35;
-  --text-main: #ffffff;
-  --text-secondary: #a1a1aa;
+  --border: #e5e5ea;
+  --text-main: #1a1a1a;
+  --text-secondary: #6b6b6b;
 }
 
 html,
@@ -41,7 +41,7 @@ a {
 }
 
 .app-navbar {
-  background: rgba(15, 15, 20, 0.86);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
@@ -73,7 +73,7 @@ a {
 .form-control,
 .form-select,
 .form-control:disabled {
-  background-color: var(--card);
+  background-color: #ffffff;
   border-color: var(--border);
   color: var(--text-main);
 }
@@ -215,7 +215,7 @@ a {
     }
 
     .modal-overlay .modal {
-        background: #1e1e2a;
+        background: #ffffff;
         border-radius: 18px;
         width: 400px;
         max-width: 95vw;
@@ -254,7 +254,7 @@ a {
 .modal-title-input {
     background: transparent;
     border: none;
-    color: white;
+    color: #1a1a1a;
     font-size: 1.15rem;
     font-weight: 600;
     width: 100%;
@@ -263,12 +263,12 @@ a {
 }
 
     .modal-title-input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
+        color: rgba(0, 0, 0, 0.3);
     }
 
 .modal-subtitle {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: #8a8a8e;
     margin-top: 3px;
 }
 
@@ -280,7 +280,7 @@ a {
 }
 
 .modal-field {
-    background: #2a2a3a;
+    background: #f5f5f7;
     border-radius: 10px;
     padding: 10px 13px;
     display: flex;
@@ -299,7 +299,7 @@ a {
 .modal-field textarea {
     background: transparent;
     border: none;
-    color: white;
+    color: #1a1a1a;
     font-size: 0.85rem;
     outline: none;
     flex: 1;
@@ -307,8 +307,8 @@ a {
 }
 
     .modal-field select option {
-        background: #1e1e2a;
-        color: white;
+        background: white;
+        color: #1a1a1a;
     }
 
 .modal-field textarea {
@@ -317,7 +317,7 @@ a {
 
     .modal-field textarea::placeholder,
     .modal-field input::placeholder {
-        color: #555;
+        color: #ababaf;
     }
 
 .color-picker-row {

@@ -59,7 +59,6 @@ namespace StudetPlanner.Controllers
                 .Where(s => s.UserId == userId)
                 .CountAsync();
 
-            // Streak: consecutive days going back with ≥1 completed task (single query)
             var today = DateTime.Today;
             var lookbackStart = today.AddDays(-30);
             var completedDates = await _context.Tasks
