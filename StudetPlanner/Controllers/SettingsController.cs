@@ -18,6 +18,25 @@ namespace StudetPlanner.Controllers
             _context = context;
         }
 
+        [HttpGet("")]
+        [HttpGet("Index")]
+        public async Task<IActionResult> Index()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+            return View(user);
+        }
+
+        [HttpPost("ToggleNotifications")]
+        public async Task<IActionResult> ToggleNotifications()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+            user.TelegramNotifications = !user.TelegramNotifications;
+            await _context.SaveChangesAsync();
+            return Json(new { enabled = user.TelegramNotifications });
+        }
+
         [HttpPost("GenerateTelegramCode")]
         public async Task<IActionResult> GenerateTelegramCode()
         {
